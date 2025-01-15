@@ -1841,3 +1841,58 @@ for update of first_name skip locked;
 --update hr.departments set manager_id = 100
 --where department_id = 60;
 
+-- flashback은 데이터를 되찾을 최후의 수단(의존X)
+select * from recyclebin;
+-- drop한 테이블 들을 볼 수 있음
+select * from employees_copy;
+delete from employees_copy where salary > 5000;
+flashback table employees_copy to timestamp sysdate - 5/(24*60);
+-- 시간을 분으로 바꿔줘야 함(5/(24*60)
+alter table employees_copy enable row movement;
+-- 테이블에서 DDL 연산을 수행하면 테이블의 구조를 바꾸기 때문에 flashback을 사용할 수 없음
+-- 이 경우에는 백업이나 flashback archive를 사용해야함(개발자 역할X, DBA 역할)
+select dbms_flashback.get_system_change_number as scn from dual;
+-- sys 스키마를 통해서 실행 가능
+-- hr 스키마는 권한 X
+flashback table employees_copy to scn 21968818;
+insert into employees_copy select * from employees;
+update employees_copy set salary = 10000;
+select ora_rowscn, first_name from employees_copy;
+-- row별 시스템 변경 번호
+update employees_copy set first_name = 'Farah' where first_name = 'Sarah';
+drop table employees_copy;
+-- drop하면 기존의 scn(시스템 변경 번호)로는 flashback 불가능
+select * from "BIN$W0PxDIBSQOalMPccUWOPxw==$0";
+-- recyclebin에서 object_name으로 삭제된 테이블을 읽기 전용으로 부를 순 있음
+flashback table employees_copy to before drop;
+-- 다시 불러오면 recyclebin 테이블에서도 사라짐
+create restore point rp_test; -- sys 스키마 사용
+flashback table hr.employees_copy to restore point rp_test;
+
+select * from recyclebin;
+purge recyclebin;
+-- purge -> 영구 삭제
+drop table employees_copy3;
+select * from employees_copy;
+flashback table employees_copy to before drop;
+drop table employees_copy purge;
+-- drop할 때 purge를 같이 쓰면 drop과 동시에 영구 삭제
+create table employees_copy3 as select * from employees;
+purge table employees_copy3;
+
+select * from employees_copy;
+select dbms_flashback.get_system_change_number from dual; -- sys 스키마 실행
+update employees_copy set salary = 10000 where employee_id = 100;
+select * from employees_copy as of timestamp (sysdate - interval '3' minute)
+where employee_id = 100;
+select * from employees_copy as of scn 21974885
+where employee_id = 100;
+select versions_starttime, versions_endtime, versions_startscn, versions_endscn,
+       versions_operation, versions_xid, employees_copy.*
+from employees_copy versions between scn minvalue and maxvalue
+where employee_id = 100;
+-- 버전 쿼리에선 테이블 alias 사용 불가
+select versions_starttime, versions_endtime, versions_startscn, versions_endscn,
+       versions_operation, versions_xid, employees_copy.*
+from employees_copy versions between timestamp (sysdate - interval '5' minute) and sysdate
+where employee_id = 100;
