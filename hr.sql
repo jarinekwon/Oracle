@@ -1896,3 +1896,37 @@ select versions_starttime, versions_endtime, versions_startscn, versions_endscn,
        versions_operation, versions_xid, employees_copy.*
 from employees_copy versions between timestamp (sysdate - interval '5' minute) and sysdate
 where employee_id = 100;
+
+desc jobs;
+insert into jobs values (100, null, 1, 10000);
+insert into jobs values (100, 'My_Job', 1, 10000);
+insert into jobs(job_id, min_salary, max_salary) values (100, 1, 10000);
+
+create table managers (manager_id number not null,
+                       first_name varchar2(50),
+                       last_name varchar2(50) constraint lname_nn not null,
+                       department_id number not null);
+desc managers;                       
+-- table명을 전체 선택하고 shift+f4 -> 테이블 정보
+-- 제약에 이름을 지정하지 않으면 sys_c로 시작하는 이름으로 오라클이 자동 생성
+
+drop table managers;
+create table managers (manager_id number constraint mgr_mid_uk unique,
+                       first_name varchar2(50),
+                       last_name varchar2(50),
+                       department_id number not null,
+                       phone_number varchar2(11) unique not null,
+--                       phone_number varchar2(11) constraint pnum_uk unique constraint pnum_nn not null
+                       -- 둘 다 이름을 지정할 수도 있음
+                       email varchar2(100),
+                       unique(email),
+                       constraint mgr_composite_uk unique(first_name, last_name, department_id)
+                      );
+insert into managers values (100, 'Alex', 'Brown', 80);
+insert into managers values (101, 'Alex', 'Brown', 80);
+insert into managers values (100, 'Alex', 'Brown', 80, '123-456-789', 'abrown');
+insert into managers values (101, 'Alex', 'Brown', 90, '123-456-780', 'abrown2');
+insert into managers values (null, null, null, 90, '123-456-781', null);
+insert into managers values (null, null, null, 100, '123-456-782', null);
+select * from managers;
+update managers set department_id = 90 where manager_id = 100;
