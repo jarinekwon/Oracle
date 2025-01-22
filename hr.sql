@@ -1930,3 +1930,45 @@ insert into managers values (null, null, null, 90, '123-456-781', null);
 insert into managers values (null, null, null, 100, '123-456-782', null);
 select * from managers;
 update managers set department_id = 90 where manager_id = 100;
+
+create table directors
+    (director_id number constraint dir_did_pk primary key,
+     first_name varchar2(50),
+     last_name varchar2(50)
+    );
+create table executives
+    (executive_id number,
+     first_name varchar2(50),
+     last_name varchar2(50),
+     constraint exec_eid_pk primary key(executive_id, last_name)
+    );
+-- 다른 테이블이더라도 같은 스키마에서 같은 이름의 제약조건을 사용할 수 없음
+insert into directors values(100, 'John', 'Goodman');
+insert into directors values(null, 'John', 'Goodman');
+-- primary key = unique + not null
+insert into executives values(100, 'John', null);
+drop table executives;
+
+drop table managers;
+create table managers (manager_id number constraint mgr_mid_pk primary key,
+                       first_name varchar2(50),
+                       last_name varchar2(50),
+                       department_id number not null,
+                       phone_number varchar2(11) unique not null,
+                       email varchar2(100),
+                       unique(email),
+                       constraint mgr_emp_fk foreign key(manager_id) references employees_copy(employee_id)
+                      );
+select * from employees;
+select * from employees_copy;
+drop table employees_copy;
+create table employees_copy
+(
+    employee_id number(6) constraint emp_cpy_eid_pk primary key,
+    first_name varchar2(20),
+    last_name varchar2(20),
+    department_id number(4)
+);
+insert into employees_copy
+    select employee_id, first_name, last_name, department_id
+    from employees;
