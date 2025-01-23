@@ -1972,3 +1972,215 @@ create table employees_copy
 insert into employees_copy
     select employee_id, first_name, last_name, department_id
     from employees;
+    
+select * from managers;
+select * from employees_copy;
+insert into managers values(100, 'John', 'King', 90, '123-456-789', 'jking');
+update managers
+set manager_id = 70
+where manager_id = 100;
+
+delete from employees_copy
+where employee_id = 100;
+
+update employees_copy
+set employee_id = 80
+where employee_id = 100;
+
+update managers
+set manager_id = 101
+where manager_id = 100;
+
+update managers
+set manager_id = null;
+
+drop table managers;
+create table managers (manager_id number constraint mgr_mid_uk unique,
+                       first_name varchar2(50),
+                       last_name varchar2(50),
+                       department_id number not null,
+                       phone_number varchar2(11) unique not null,
+                       email varchar2(100),
+                       unique(email),
+                       constraint mgr_emp_fk foreign key(manager_id) references employees_copy(employee_id),
+                       constraint mgr_names_fk foreign key(first_name, last_name) references employees_copy(first_name, last_name)
+                      );
+                      
+insert into managers values(103, 'John', 'King', 90, '123-456-789', 'jking');            
+
+drop table employees_copy;
+create table employees_copy
+(
+    employee_id number(6) constraint emp_cpy_eid_pk primary key,
+    first_name varchar2(20),
+    last_name varchar2(20),
+    department_id number(4),
+    constraint emp_cpy_names_uk unique(first_name, last_name)
+);
+insert into employees_copy
+    select employee_id, first_name, last_name, department_id
+    from employees;
+
+-- child 테이블이 parent 테이블을 참조하는 한 parent 레코드를 삭제할 수 없음
+-- 자식 레코드 값을 null로 설정하거나 자식레코드들을 먼저 삭제한 다음 부모키를 삭제
+-- 많은 테이블에서 참조하는 경우, on delete cascade/on delete set null 사용
+
+drop table managers;
+create table managers (manager_id number constraint mgr_mid_uk unique,
+                       first_name varchar2(50),
+                       last_name varchar2(50),
+                       department_id number not null,
+                       phone_number varchar2(11) unique not null,
+                       email varchar2(100),
+                       unique(email),
+                       -- constraint mgr_emp_fk foreign key(manager_id) references employees_copy(employee_id) on delete set null);
+                       constraint mgr_emp_fk foreign key(manager_id) references employees_copy(employee_id) on delete cascade);
+                      
+insert into managers values(103, 'John', 'King', 90, '123-456-789', 'jking');
+insert into managers values(104, 'John2', 'King', 90, '123-456-780', 'jking2');
+insert into managers values(105, 'John3', 'King', 90, '123-456-781', 'jking3');
+
+select * from managers;
+select * from employees_copy;
+
+delete from employees_copy
+where employee_id = 103;
+delete from employees_copy
+where employee_id = 104;
+
+update employees_copy
+set employee_id = 300
+where employee_id = 105;
+-- on delete cascade -> 부모 행을 삭제할 때 부모 행과 함께 종속 하위 행을 자동으로 삭제해 무결성 제약 위반 오류를 발생시키지 않음
+-- on delete set null -> 부모 기록을 삭제하면 관련된 자녀 기록은 전부 null로 설정
+-- 위의 두 방식은 delete에만 적용(update는 안됨)
+
+
+create table managers2
+(
+    manager_id number,
+    first_name varchar2(50),
+    salary number,
+    constraint salary_check check (salary > 100 and salary < 50000)
+);
+
+insert into managers2 values(1, 'Steven', 50);
+insert into managers2 values(1, 'Steven', 2500);
+
+update managers2
+set salary = 20
+where manager_id = 1;
+update managers2
+set salary = 65000
+where manager_id = 1;
+
+drop table managers2;
+create table managers2
+(
+    manager_id number,
+    first_name varchar2(50),
+    salary number,
+    email varchar2(100),
+    constraint demo_check check (salary > 100 and salary < 50000 and upper(email) like '%.COM')
+);
+insert into managers2 values(1, 'Steven', 2500, 'thisisademoemail.xyz');
+insert into managers2 values(1, 'Steven', 2500, 'thisisademoemail.com');
+
+drop table managers;
+drop table employees_copy;
+create table employees_copy as select * from employees;
+
+alter table employees_copy add constraint emp_cpy_email_uk unique(email);
+alter table employees_copy add constraint emp_cpy_names_uk unique (first_name, last_name);
+alter table employees_copy add unique (phone_number);
+alter table employees_copy add check (salary >= 10000);
+-- 이미 있던 컬럼에서 제약 조건에 위반되는게 있으면 alter 불가능
+alter table employees_copy add check (salary >= 1000);
+alter table employees_copy add constraint emp_cpy_emp_id_pk primary key (employee_id);
+alter table employees_copy add constraint emp_cpy_dept_fk foreign key (department_id) references departments(department_id);
+alter table employees_copy modify salary constraint emp_cpy_salary_nn not null;
+alter table employees_copy modify last_name not null;
+-- 이미 제약 조건이 있으면 수정 불가
+alter table employees_copy modify first_name not null;
+
+select * from employees_copy;
+create table managers (manager_id number constraint mgr_mid_pk primary key,
+                       first_name varchar2(50),
+                       last_name varchar2(50),
+                       department_id number not null,
+                       phone_number varchar2(11) unique not null,
+                       email varchar2(100),
+                       unique(email),
+                       constraint mgr_emp_fk foreign key(manager_id) references employees_copy(employee_id));
+drop table managers;
+
+alter table employees_copy drop constraint emp_cpy_emp_id_pk;
+-- primary key를 참조하는 foreign key가 있기 때문에 제약 조건을 제거할 수 없음(cascade를 사용해야 함)
+alter table employees_copy drop constraint emp_cpy_emp_id_pk cascade;
+alter table employees_copy drop primary key cascade;
+alter table employees_copy drop constraint SYS_C008297 online;
+
+drop table employees_copy;
+drop table departments_copy;
+create table employees_copy as select * from employees;
+create table departments_copy as select * from departments;
+
+alter table departments_copy add constraint dept_id_pk primary key (department_id);
+-- 한 스키마에서 같은 제약 조건 이름을 사용할 수 없음
+alter table departments_copy add constraint dept_cpy_id_pk primary key (department_id);
+
+alter table employees_copy
+add constraint emp_dept_cpy_fk foreign key (department_id) references departments_copy (department_id);
+
+alter table departments_copy drop column department_id;
+-- department_id column에 외래키 제약 조건이 있어서 drop 불가(cascade constraint 사용)
+alter table departments_copy drop column department_id cascade constraint;
+
+alter table employees_copy add unique (first_name, last_name);
+
+alter table employees_copy drop column last_name;
+-- 다중-열 조건에 참조
+alter table employees_copy drop column last_name cascade constraint;
+-- cascade constraint -> 참조 무결성 제거
+
+create table employees_copy as select * from employees;
+alter table employees_copy rename constraint SYS_C008325 to email_nn;
+
+drop table employees_copy;
+drop table departments_copy;
+create table employees_copy as select * from employees;
+create table departments_copy as select * from departments;
+
+-- alter table departments_copy add constraint dept_cpy_id_pk primary key (department_id);
+alter table departments_copy 
+add constraint dept_cpy_id_pk primary key (department_id) disable;
+
+alter table employees_copy
+add constraint emp_dept_cpy_fk foreign key (department_id) references departments_copy (department_id);
+
+update departments_copy
+set department_name = null
+where department_id = 10;
+
+alter table departments_copy
+disable constraint SYS_C008332;
+
+update departments_copy
+set department_id = 5
+where department_id = 80;
+
+alter table departments_copy
+disable constraint dept_cpy_id_pk;
+-- 외래키 제약 조건이 있는 다른 테이블까지 모두 disable 해야 됨
+alter table departments_copy
+disable constraint dept_cpy_id_pk cascade;
+-- 관련 외래키 제약 조건까지 모두 disable로 만듦
+
+select * from departments_copy order by department_id;
+
+insert into departments_copy values (10, 'TempDept', 100, 1700);
+
+alter table departments_copy enable constraint DEPT_CPY_ID_PK;
+-- disable 상태에서 제약 조건에 관계없이 레코드를 추가했다면 enable 불가
+
+delete from departments_copy where department_name = 'TempDept';
