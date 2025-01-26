@@ -1,3 +1,561 @@
+-- #INFORMATION Command
+DESC employees;
+INFO departments;
+INFO+ employees;
+
+-- #SQL Statement Basics
+SELECT * FROM employees;
+SELECT * FROM departments;
+
+-- #Oracle Error Messages
+SELECT * employees;
+SELECT 1 + 'abc' FROM dual;
+SELECT 1 + 2 FROM dual;
+CREATE OR REPLACE PUBLIC SYNONYM jobs FOR hr.jobs;
+
+-- #Using SELECT Statements
+--Retrieving all the columns(fields) from a table. 
+SELECT * FROM employees;
+ 
+--Retrieving specific column(s) from a table.
+SELECT first_name, last_name, email FROM EMPLOYEES;
+
+-- #Using Column Aliases
+SELECT first_name, last_name, email FROM employees; 
+SELECT first_name AS name, last_name as surname, email FROM employees; 
+SELECT first_name AS "My     Name", email "E-mail" FROM employees; 
+SELECT first_name AS "My Name", email "E-mail" FROM employees; 
+SELECT employee_id, salary + nvl(salary*commission_pct,0) + 1000 new_salary, salary FROM employees;
+
+-- #Quote(Q) Operator
+select * from dual;
+select 'My Name is Adam' as "Output" from dual;
+select 'I''m using quote operator in SQL statements' as "Output" from dual;
+select q'[I'm using quote operator in SQL statements]' as "Quote Operator" from dual;
+select q'<I'm using quote operator in SQL statements>' as "Quote Operator" from dual;
+select q'dI'm using quote operator in SQL statementsd' as "Quote Operator" from dual;
+
+-- #DISTINCT and UNIQUE Operators
+SELECT first_name FROM employees;
+SELECT distinct first_name FROM employees;
+SELECT unique first_name FROM employees;
+SELECT distinct job_id, distinct department_id FROM employees;
+SELECT distinct job_id, department_id FROM employees;
+SELECT distinct job_id FROM employees;
+SELECT distinct job_id, department_id, first_name FROM employees;
+SELECT job_id, distinct department_id, first_name FROM employees;
+
+-- #Concatenation Operators
+SELECT 'My Name is Alex' FROM employees;
+SELECT 'My Name is ' || first_name FROM employees;
+SELECT 'The commission percentage is ' || commission_pct AS concatenation,commission_pct FROM employees;
+SELECT first_name || ' ' || last_name AS "full name" FROM employees;
+SELECT * FROM employees;
+SELECT * FROM locations;
+SELECT street_address || ',' || city || ',' || postal_code || ',' || state_province || ',' || country_id AS "full address" 
+FROM locations;
+
+-- #Arithmetic Expressions and NULL Values
+SELECT * FROM employees;
+SELECT employee_id, salary, salary*12 as annual_salary FROM employees;
+SELECT employee_id, salary, salary+100*12 as annual_salary FROM employees;
+SELECT employee_id, salary, (salary+100)*12 as annual_salary FROM employees;
+SELECT sysdate FROM dual;
+SELECT sysdate + 4 FROM dual;
+SELECT employee_id, hire_date, hire_date+5 FROM employees;
+SELECT salary, salary*commission_pct, commission_pct FROM employees; 
+
+-- #Using WHERE Clause
+SELECT * FROM employees;
+SELECT * FROM employees WHERE salary > 10000;
+SELECT * FROM employees WHERE job_id = 'IT_PROG';
+
+-- #Comparison Operators
+SELECT * FROM employees;
+SELECT * FROM employees WHERE salary > 10000;
+SELECT * FROM employees WHERE salary < 10000;
+SELECT * FROM employees WHERE hire_date > '01-JUN-05';
+SELECT * FROM employees WHERE hire_date = '21-MAY-07';
+SELECT * FROM employees WHERE manager_id = 100;
+
+-- #BETWEEN AND Operator
+SELECT * FROM employees WHERE salary BETWEEN 10000 AND 14000;
+SELECT * FROM employees WHERE hire_date BETWEEN '07-JUN-02' AND '29-JAN-08';
+SELECT * FROM employees WHERE hire_date BETWEEN '07-JUN-02' AND '29-JAN-05';
+
+-- #IN Operator
+SELECT * FROM employees 
+    WHERE employee_id IN (50, 100, 65, 210)
+SELECT * FROM employees 
+    WHERE employee_id IN (50, 100, 65, 210, 150);
+SELECT * FROM employees 
+    WHERE first_name IN ('Steven', 'Peter', 'Adam');
+SELECT * FROM employees 
+    WHERE first_name IN ('Steven', 'Peter', 'Adam', 'aa');
+SELECT * FROM employees 
+    WHERE hire_date IN ('08-MAR-08', '30-JAN-05');
+    
+-- #LIKE Operator
+SELECT * FROM employees;
+SELECT * FROM employees WHERE job_id = 'SA_REP';
+SELECT * FROM employees WHERE job_id LIKE 'SA_REP';
+SELECT * FROM employees WHERE job_id LIKE 'SA%';
+SELECT * FROM employees WHERE first_name LIKE 'A%';
+SELECT * FROM employees WHERE first_name LIKE '%A';
+SELECT * FROM employees WHERE first_name LIKE '%a';
+SELECT * FROM employees WHERE first_name LIKE '%a%';
+SELECT * FROM employees WHERE first_name LIKE '_r%';
+
+-- #IS NULL Operator
+SELECT * FROM employees WHERE commission_pct = NULL;
+SELECT * FROM employees WHERE commission_pct IS NULL;
+SELECT * FROM employees WHERE commission_pct IS NOT NULL;
+
+-- #Logical Operators
+SELECT * FROM employees WHERE job_id = 'SA_REP' OR salary > 10000;
+SELECT * FROM EMPLOYEES WHERE salary > 10000 AND job_id IN ('SA_MAN', 'SA_REP');
+SELECT * FROM EMPLOYEES WHERE salary > 10000 AND job_id NOT IN ('SA_MAN', 'SA_REP');
+
+-- #Rules of Precedence
+SELECT first_name, last_name, job_id, salary FROM employees 
+WHERE (job_id = 'IT_PROG' or job_id = 'ST_CLERK') and salary > 5000;
+ 
+SELECT first_name, last_name, job_id, salary FROM employees 
+WHERE job_id = 'IT_PROG' or (job_id = 'ST_CLERK' and salary > 5000);
+ 
+SELECT first_name, last_name, job_id, salary FROM employees 
+WHERE job_id = 'IT_PROG' or job_id = 'ST_CLERK' and salary > 5000;
+ 
+SELECT first_name, last_name, department_id, salary
+FROM employees
+WHERE salary > 10000 AND department_id = 20 OR department_id = 30;
+ 
+SELECT first_name, last_name, department_id, salary
+FROM employees
+WHERE salary > 10000 AND (department_id = 20 OR department_id = 30);
+
+-- #ORDER BY Clause
+SELECT * FROM employees;
+SELECT first_name, last_name, salary FROM employees ORDER BY first_name;
+SELECT first_name, last_name, salary FROM employees ORDER BY last_name;
+SELECT first_name, last_name, salary, (10*(salary/5) + 3000) - 100 NEW_SALARY
+FROM employees ORDER BY NEW_SALARY;
+SELECT first_name, last_name, salary, (10*(salary/5) + 3000) - 100 NEW_SALARY
+FROM employees ORDER BY 1;
+SELECT first_name, last_name, salary, (10*(salary/5) + 3000) - 100 NEW_SALARY
+FROM employees ORDER BY 2;
+SELECT *
+FROM employees ORDER BY 2;
+SELECT *
+FROM employees ORDER BY 5;
+SELECT *
+FROM employees ORDER BY first_name, last_name;
+SELECT *
+FROM employees ORDER BY first_name, job_id, salary;
+
+-- #ASC and DESC Operators
+select employee_id, first_name, last_name, salary from employees order by first_name;
+select employee_id, first_name, last_name, salary from employees order by first_name asc;
+select employee_id, first_name, last_name, salary from employees order by first_name desc;
+select employee_id, first_name, last_name, salary from employees order by first_name desc, last_name;
+select employee_id, first_name, last_name, salary from employees order by first_name desc, last_name desc;
+select employee_id, first_name, last_name, salary from employees order by first_name desc, salary desc;
+select employee_id, first_name, last_name, salary s from employees order by first_name desc, s desc;
+select employee_id, first_name, last_name, salary s from employees order by 2 desc, s desc;
+select first_name, salary, commission_pct from employees order by commission_pct;
+
+-- #NULLS FIRST and NULLS LAST Operators
+select first_name, salary, commission_pct from employees order by commission_pct;
+select first_name, salary, commission_pct from employees order by commission_pct NULLS FIRST;
+select first_name, salary, commission_pct from employees order by commission_pct ASC NULLS FIRST;
+select first_name, salary, commission_pct from employees order by commission_pct DESC;
+select first_name, salary, commission_pct from employees order by commission_pct DESC NULLS LAST;
+
+-- #ROWNUM & ROWID in SQL
+SELECT employee_id, first_name, last_name, salary, rowid, rownum from employees;
+SELECT employee_id, first_name, last_name, salary, rowid, rownum from employees where department_id = 60;
+SELECT employee_id, first_name, last_name, salary, rowid, rownum from employees where department_id = 80;
+SELECT employee_id, first_name, last_name, salary, rowid, rownum from employees 
+WHERE department_id = 80 and rownum <= 5 order by salary desc;
+
+-- #Oracle FETCH Clause
+SELECT first_name, last_name, salary FROM employees 
+ORDER BY salary DESC
+OFFSET 1 ROW FETCH FIRST 10 ROWS ONLY;
+ 
+SELECT first_name, last_name, salary FROM employees 
+ORDER BY salary DESC
+OFFSET 1 ROW FETCH FIRST 10 ROWS WITH TIES;
+ 
+SELECT first_name, last_name, salary FROM employees 
+OFFSET 1 ROW FETCH FIRST 10 ROWS WITH TIES;
+ 
+SELECT first_name, last_name, salary FROM employees
+ORDER BY salary DESC
+FETCH FIRST 10 ROWS WITH TIES;
+ 
+SELECT first_name, last_name, salary FROM employees
+ORDER BY salary DESC
+OFFSET 5 ROW;
+ 
+SELECT first_name, last_name, salary FROM employees 
+ORDER BY salary DESC
+OFFSET 1 ROWS FETCH FIRST 10 ROWS WITH TIES;
+ 
+SELECT first_name, last_name, salary FROM employees 
+ORDER BY salary DESC
+OFFSET 1 ROWS FETCH FIRST 10 ROWS WITH TIES;
+
+-- #Substitution Variable
+SELECT employee_id, first_name, last_name, department_id
+FROM employees WHERE department_id = 30;
+ 
+SELECT employee_id, first_name, last_name, department_id
+FROM employees WHERE department_id = &department_no;
+ 
+SELECT employee_id, first_name, last_name, department_id
+FROM employees WHERE first_name = '&name';
+ 
+SELECT employee_id, first_name, last_name, department_id
+FROM employees WHERE first_name = &name;
+ 
+SELECT employee_id, first_name, last_name, &column_name
+FROM &table_name 
+WHERE &condition
+ORDER BY &order_by_clause;
+
+-- #Double Ampersand(&&) and DEFINE & UNDEFINE Commands
+SELECT employee_id, first_name, last_name, salary
+FROM employees 
+WHERE salary BETWEEN &sal AND &sal + 1000; 
+ 
+SELECT employee_id, first_name, last_name, salary
+FROM employees 
+WHERE salary BETWEEN &&sal AND &sal + 1000; 
+ 
+SELECT employee_id, first_name, last_name, &&column_name 
+FROM employees
+ORDER BY &column_name;
+ 
+SELECT &&column_name 
+FROM employees
+GROUP BY &column_name
+ORDER BY &column_name;
+ 
+DEFINE emp_num = 100;
+SELECT * FROM employees WHERE employee_id = &emp_num;
+DEFINE emp_num = 200;
+DEFINE column_name = 'first_name';
+UNDEFINE emp_num;
+DEFINE;
+DEFINE column_name;
+UNDEF column_name;
+DEF column_name;	
+
+-- #ACCPET and PROMPT Commands
+ACCEPT emp_id PROMPT 'Please Enter a valid Employee ID:';
+ 
+SELECT employee_id, first_name, last_name, salary
+FROM employees
+WHERE employee_id = &emp_id;
+ 
+UNDEFINE emp_id;
+ 
+ACCEPT min_salary PROMPT 'Please specify the MINIMUM salary:'
+ACCEPT max_salary PROMPT 'Please specify the MAXIMUM salary:'
+SELECT employee_id, last_name, salary 
+FROM employees
+WHERE salary BETWEEN &min_salary AND &max_salary;
+UNDEFINE min_sal;
+UNDEF max_sal;
+
+-- #SET VERIFY ON-OFF Commands
+SELECT employee_id, first_name, last_name, department_id
+FROM employees WHERE department_id = &dept_id;
+ 
+SET VERIFY ON;
+SET VERIFY OFF;
+ 
+SELECT * FROM departments WHERE department_name = 'R&D';
+SET DEFINE OFF;
+SET DEFINE ON;
+
+-- #Case Conversion(LOWER, UPPER, INITCAP) Functions
+SELECT first_name, UPPER(first_name), 
+       last_name, LOWER(last_name), 
+       email, INITCAP(email) FROM employees;
+       
+SELECT first_name, UPPER(first_name), 
+       last_name, LOWER(last_name), 
+       email, INITCAP(email) FROM employees
+WHERE job_id = 'IT_PROG';
+ 
+SELECT first_name, UPPER(first_name), 
+       last_name, LOWER(last_name), 
+       email, INITCAP(email),
+       UPPER('bmw i8')FROM employees
+WHERE job_id = 'IT_PROG';
+ 
+SELECT * FROM employees
+WHERE last_name = 'KING';
+ 
+SELECT * FROM employees
+WHERE last_name = 'king';
+ 
+SELECT * FROM employees
+WHERE LOWER(last_name) = 'king';
+ 
+SELECT * FROM employees
+WHERE UPPER(last_name) = 'KING';
+ 
+SELECT * FROM employees
+WHERE INITCAP(last_name) = 'King';
+
+-- #Character Manupulation Functions Part 1
+SELECT first_name, SUBSTR(first_name,3,6), SUBSTR(first_name,3),
+    last_name, LENGTH(last_name)
+    FROM employees;
+SELECT CONCAT(first_name,last_name)
+    FROM employees;
+SELECT CONCAT(CONCAT(first_name,last_name),employee_id)
+    FROM employees;
+SELECT first_name || last_name || employee_id
+    FROM employees;
+SELECT INSTR('I am learning how to use functions in Oracle', 'o', 17, 3) FROM dual; 
+SELECT INSTR('I am learning how to use functions in Oracle', 'o', 1, 3) FROM dual;
+SELECT INSTR('I am learning how to use functions in Oracle', 'o', -1, 3) FROM dual;
+SELECT INSTR('I am learning how to use functions in Oracle', 'o', -1, 1) FROM dual;
+SELECT INSTR('I am learning how to use functions in Oracle', 'in', -1, 1) FROM dual;
+SELECT INSTR('I am learning how to use functions in Oracle', 'in', 1, 1) FROM dual;
+SELECT first_name,INSTR(first_name,'a') from employees;
+ 
+SELECT TRIM ('     My Name is Adam   ') trm from dual;
+SELECT TRIM (' ' FROM '     My Name is Adam   ') trm from dual;
+SELECT TRIM (BOTH ' ' FROM '     My Name is Adam   ') trm from dual;
+SELECT TRIM (LEADING ' ' FROM '     My Name is Adam   ') trm from dual;
+SELECT TRIM (TRAILING ' ' FROM '     My Name is Adam   ') trm from dual;
+SELECT TRIM (TRAILING 'm' FROM '     my Name is Adam   ') trm from dual;
+SELECT TRIM (TRAILING 'm' FROM 'my Name is Adam') trm from dual;
+SELECT TRIM (TRAILING 'm' FROM 'my Name is Adammmmm') trm from dual;
+SELECT TRIM (LEADING 'm' FROM 'my Name is Adam') trm from dual;
+SELECT TRIM (BOTH 'm' FROM 'my Name is Adam') trm from dual;
+SELECT TRIM ('m' FROM 'my Name is Adam') trm from dual;
+SELECT TRIM ('m' FROM 'my Name is Ada') trm from dual;
+SELECT TRIM (TRAILING 'm' FROM 'my Name is Ada') trm from dual;
+SELECT TRIM (TRAILING 'my' FROM 'my Name is Ada') trm from dual;
+ 
+SELECT RTRIM ('  my Name is Adam  ') trm from dual;
+SELECT LTRIM ('  my Name is Adam  ') trm from dual;
+SELECT LTRIM ('  my Name is Adam  ', 'my') trm from dual;
+SELECT LTRIM ('my Name is Adam', 'my') trm from dual;
+SELECT RTRIM ('my Name is Adam', 'my') trm from dual;
+SELECT RTRIM ('my Name is Adammmm', 'my') trm from dual;
+SELECT LTRIM ('www.mywebsite.com', 'w.') trm from dual;
+SELECT LTRIM ('234234217www.mywebsite.com', '0123456789') trm from dual;
+ 
+select first_name, replace(first_name,'a') rpl from employees;
+select first_name, replace(first_name,'a','-') rpl from employees;
+select first_name, replace(first_name,'le','-') rpl from employees;
+select first_name, replace(first_name,'und','-') rpl from employees;
+ 
+select first_name, LPAD(first_name,10,'*') pad from employees;
+select first_name, RPAD(first_name,10,'*') pad from employees;
+select first_name, RPAD(first_name,6,'*') pad from employees;
+select first_name, LPAD(first_name,6,'*') pad from employees;
+select first_name, LPAD('My name is ',20,'-') pad from employees;
+select first_name, LPAD('My name is '||last_name ,20,'-') pad from employees;
+
+-- #Character Manipulation Functions Part 2(INSTR Functions)
+SELECT INSTR('I am learning how to use functions in Oracle', 'o', 17, 3) FROM dual; 
+SELECT INSTR('I am learning how to use functions in Oracle', 'o', 1, 3) FROM dual;
+SELECT INSTR('I am learning how to use functions in Oracle', 'o', -1, 3) FROM dual;
+SELECT INSTR('I am learning how to use functions in Oracle', 'o', -1, 1) FROM dual;
+SELECT INSTR('I am learning how to use functions in Oracle', 'in', -1, 1) FROM dual;
+SELECT INSTR('I am learning how to use functions in Oracle', 'in', 1, 1) FROM dual;
+SELECT first_name,INSTR(first_name,'a') from employees;
+
+-- #Character Functions Part 3(TRIM, LTRIM, RTRIM Functions)
+SELECT TRIM ('     My Name is Adam   ') trimmed_text from dual;
+SELECT TRIM (' ' FROM '     My Name is Adam   ') trimmed_text from dual;
+SELECT TRIM (BOTH ' ' FROM '     My Name is Adam   ') trimmed_text from dual;
+SELECT TRIM (LEADING ' ' FROM '     My Name is Adam   ') trimmed_text from dual;
+SELECT TRIM (TRAILING ' ' FROM '     My Name is Adam   ') trimmed_text from dual;
+SELECT TRIM (TRAILING 'm' FROM '     my Name is Adam   ') trimmed_text from dual;
+SELECT TRIM (TRAILING 'm' FROM 'my Name is Adam') trimmed_text from dual;
+SELECT TRIM (TRAILING 'm' FROM 'my Name is Adammmmm') trimmed_text from dual;
+SELECT TRIM (LEADING 'm' FROM 'my Name is Adam') trimmed_text from dual;
+SELECT TRIM (BOTH 'm' FROM 'my Name is Adam') trimmed_text from dual;
+SELECT TRIM ('m' FROM 'my Name is Adam') trimmed_text from dual;
+SELECT TRIM ('m' FROM 'my Name is Ada') trimmed_text from dual;
+SELECT TRIM (TRAILING 'm' FROM 'my Name is Ada') trimmed_text from dual;
+SELECT TRIM (TRAILING 'my' FROM 'my Name is Ada') trimmed_text from dual;
+ 
+SELECT RTRIM ('  my Name is Adam  ') r_trimmed_text from dual;
+SELECT LTRIM ('  my Name is Adam  ') l_trimmed_text from dual;
+SELECT LTRIM ('my Name is Adam', 'my') l_trimmed_text from dual;
+SELECT RTRIM ('my Name is Adam', 'my') r_trimmed_text from dual;
+SELECT RTRIM ('my Name is Adammmm', 'my') r_trimmed_text from dual;
+SELECT LTRIM ('www.yourwebsite.com', 'w.') l_trimmed_text from dual;
+SELECT RTRIM(LTRIM('www.yourwebsitename.com', 'w.'),'.com') trimmed_text from dual;
+SELECT ltrim('1237982434www.yourwebsitename.com', '0123456789') trimmed_text from dual;
+
+-- #Character Functions Part 4(REPLACE, LPAD, RPAD Functions)
+SELECT first_name, REPLACE(first_name,'a') rpl FROM employees;
+SELECT first_name, REPLACE(first_name,'a','-') rpl FROM employees;
+SELECT first_name, REPLACE(first_name,'le','-') rpl FROM employees;
+SELECT first_name, REPLACE(first_name,'und','-') rpl FROM employees;
+SELECT first_name, lpad(first_name,10,'*') pad FROM employees;
+SELECT first_name, rpad(first_name,10,'*') pad FROM employees;
+SELECT first_name, rpad(first_name,6,'*') pad FROM employees;
+SELECT first_name, lpad(first_name,6,'*') pad FROM employees;
+SELECT first_name, lpad('My name is ',20,'-') pad FROM employees;
+SELECT first_name, lpad('My name is '||last_name ,20,'-') pad FROM employees;
+
+-- #Numeric Functions
+SELECT round(12.536,2) FROM dual;
+SELECT TRUNC(12.536,2) FROM dual;
+SELECT ceil(12.536) FROM dual;
+SELECT ceil(12.001) FROM dual;
+SELECT ceil(12.999) FROM dual;
+SELECT ceil(12) FROM dual;
+SELECT floor(12.12) FROM dual;
+SELECT floor(12.99) FROM dual;
+SELECT MOD(8, 5) FROM dual;
+SELECT MOD(8, 2) FROM dual;
+SELECT MOD(1800, 70) FROM dual;
+
+-- #Nested Functions
+SELECT SUBSTR('John Smith', INSTR('John Smith', ' ')+1,LENGTH('John Smith')) output 
+FROM dual;
+ 
+SELECT SUBSTR('John Smith', INSTR('John Smith', ' ')+1) output 
+FROM dual;
+ 
+SELECT first_name|| ' ' || last_name full_name, 
+SUBSTR(first_name|| ' ' || last_name, 
+              INSTR(first_name|| ' ' || last_name, ' ')+1) output 
+FROM employees;
+ 
+SELECT first_name|| ' ' || last_name full_name, 
+SUBSTR(concat(concat(first_name,' '),last_name), 
+              INSTR(first_name|| ' ' || last_name, ' ')+1) output 
+FROM employees;
+
+-- #Date Functions & Arithmetic Operations on Dates
+SELECT sysdate FROM dual;
+SELECT sysdate, current_date, sessiontimezone, systimestamp, current_timestamp 
+FROM dual;
+SELECT sysdate FROM dual;
+SELECT sysdate, sysdate + 4 FROM dual;
+SELECT sysdate, sysdate - 4 FROM dual;
+SELECT sysdate, sysdate + 1/24 FROM dual;
+SELECT sysdate, sysdate + 1/(24*60) FROM dual;
+SELECT employee_id, hire_date,sysdate FROM employees;
+SELECT employee_id, hire_date,sysdate, sysdate-hire_date worked_in_days
+FROM employees;
+SELECT employee_id, hire_date,sysdate,trunc(sysdate-hire_date) worked_in_days 
+FROM employees;
+SELECT employee_id, hire_date,sysdate,trunc((sysdate-hire_date)/365) worked_in_years 
+FROM employees
+ORDER BY worked_in_years DESC;
+
+-- #Date Manupulation Functions in SQL
+SELECT sysdate, add_months(sysdate,2) FROM dual;
+SELECT sysdate, add_months(sysdate,-2) FROM dual;
+SELECT sysdate, add_months(sysdate,30) FROM dual;
+SELECT sysdate, add_months('12-JUL-21',30) FROM dual;
+SELECT employee_id, hire_date, 
+    trunc(hire_date,'MONTH') truncated_result, round(hire_date,'MONTH') rounded_result
+FROM employees;
+SELECT employee_id, hire_date, 
+    trunc(hire_date,'YEAR') truncated_result, round(hire_date,'YEAR') rounded_result
+FROM employees;	
+SELECT extract(year from sysdate) extracted_result FROM dual;
+SELECT extract(month from sysdate) extracted_result FROM dual;
+SELECT extract(day from sysdate) extracted_result FROM dual;
+SELECT next_day(sysdate,'SUNDAY') next_day_result FROM dual;
+SELECT last_day(sysdate) last_day_result FROM dual;
+SELECT last_day('04-JUL-20') last_day_result FROM dual;
+
+-- #Conversion Functions
+--Implicit Conversion FROM a VARCHAR2 value TO a "NUMBER" value.
+SELECT * FROM EMPLOYEES WHERE salary > '5000';
+ 
+--Implicit Conversion FROM a VARCHAR2 value TO a "DATE" value. 
+SELECT * FROM EMPLOYEES WHERE HIRE_DATE = '17-JUN-03';
+ 
+--Implicit Conversion FROM a NUMBER value TO a VARCHAR2 value. 
+SELECT DEPARTMENT_ID || DEPARTMENT_NAME FROM DEPARTMENTS;
+ 
+--Implicit Conversion FROM a DATE value TO a VARCHAR2 value. 
+SELECT FIRST_NAME || SYSDATE FROM EMPLOYEES;
+
+-- #TO_CHAR, TO_DATE, TO_NUMBER Functions(Part 1)
+SELECT first_name, hire_date FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'YYYY') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'YY') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'RR') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'YEAR') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'MM') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'MM-YYYY') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'MON-YYYY') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'MON-yyyy') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'mon-yyyy') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'Mon-yyyy') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'MONTH-yyyy') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'Month-yyyy') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'DD-Month-yyyy') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'DY-Month-yyyy') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'Dy-Month-yyyy') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'Day-Month-yyyy') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'Dy-Month-yyyy HH12') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'Dy-Month-yyyy HH24') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'Dy-Month-yyyy HH24:MI') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'Dy-Month-yyyy HH24:MI:SS') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(sysdate,'Dy-Month-yyyy HH24:MI:SS') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'DDTH-Month-yyyy HH24:MI:SS') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'DDTH-MMTH-yyyy HH24:MI:SS') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'DDSP-MMTH-yyyy HH24:MI:SS') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'DDSPTH-MMTH-yyyy HH24:MI:SS') "Formatted Date" FROM employees;
+SELECT first_name, hire_date, to_char(hire_date,'DDTHSP-MMTH-yyyy HH24:MI:SS') "Formatted Date" FROM employees;
+
+-- #TO_CHAR, TO_DATE, TO_NUMBER Functions(Part 2)
+SELECT salary*commission_pct*100 "Original", 
+       TO_CHAR(salary*commission_pct*100, '$999,999.00') "Formatted Version"
+FROM employees WHERE commission_pct IS NOT NULL;
+ 
+SELECT salary*commission_pct*100 "Original", 
+       TO_CHAR(salary*commission_pct*100, 'L999,999.00') "Formatted Version"
+FROM employees WHERE commission_pct IS NOT NULL;
+ 
+SELECT salary*commission_pct*100 "Original", 
+       TO_CHAR(salary*commission_pct*100, '$099,999.00') "Formatted Version"
+FROM employees WHERE commission_pct IS NOT NULL;
+ 
+SELECT salary*commission_pct*100 "Original", 
+       TO_CHAR(salary*commission_pct*100, '$009,999.00') "Formatted Version"
+FROM employees WHERE commission_pct IS NOT NULL;
+ 
+SELECT to_number('$5,322.33', '$99,999.00') formatted_number FROM dual;
+
+-- #Null-Related(NVL, NVL2, NULLIF, COALESCE) Functions
+SELECT employee_id, salary, commission_pct, salary + salary * commission_pct 
+FROM employees;
+ 
+SELECT employee_id, salary, commission_pct, salary + salary * nvl(commission_pct,0) nvl_new_sal 
+FROM employees;
+ 
+SELECT first_name, last_name, 
+length(first_name) len1, length(first_name) len2, 
+nullif(length(first_name),length(last_name)) result
+FROM employees;
+ 
+SELECT coalesce(null,null,null,1,2,3, null) FROM dual;
+SELECT coalesce(null,null,null,null) FROM dual;
+ 
+SELECT state_province, city, coalesce(state_province,city) FROM locations;
+
+-- #Oracle Conditional Expressions:CASE Expressions
 select first_name, last_name, job_id, salary,
         case job_id
             when 'ST_CLERK' then salary * 1.2
@@ -27,6 +585,7 @@ select first_name, last_name, job_id, salary
             else 0
           end) = 1;
 
+-- #Oracle Conditional Expressions:DECODE Function
 select decode(1, 1, 'one', 2, 'two') result from dual;
 select decode(2, 1, 'one', 2, 'two') result from dual;
 select decode(3, 1, 'one', 2, 'two', 3, 'three') result from dual;
@@ -39,26 +598,31 @@ select first_name, last_name, job_id, salary,
                          salary) as updated_salary
     from employees;
 
+-- #AVG Function
 select avg(salary), avg(all salary), avg(distinct salary)
     from employees
     where job_id = 'IT_PROG';
 
 select avg(commission_pct), avg(nvl(commission_pct, 0)) from employees;
 
+-- #COUNT Function
 select count(*), count(commission_pct), count(distinct commission_pct),
         count(nvl(commission_pct, 0)), count(distinct nvl(commission_pct, 0))
     from employees;
 
+-- #MAX Function
 select max(salary), max(hire_date), max(first_name) from employees;
-select * from employees
-    order by first_name;
+select * from employees order by first_name;
 
+-- #MIN Function
 select min(salary), min(commission_pct), min(nvl(commission_pct, 0)),
         min(hire_date), min(first_name)
     from employees;
-    
+
+-- #SUM Function
 select sum(salary), sum(all salary), sum(distinct salary) from employees;    
 
+-- #LISTAGG Function
 select listagg(distinct salary, ' - ') within group (order by salary desc) Employees
     from employees
     where job_id = 'ST_CLERK';
@@ -74,10 +638,12 @@ select j.job_title,
     where e.job_id = j.job_id
     group by j.job_title;
 
+-- #Overview Of Group Functions
 select sum(salary), avg(salary), max(hire_date), min(commission_pct),
         count(distinct manager_id), listagg(job_id, ', ')
     from employees;
 
+-- #GROUP BY Clause(Part 1)
 select avg(salary) from employees
     where job_id = 'IT_PROG' or job_id = 'SA_REP';
     
@@ -88,13 +654,15 @@ select job_id, avg(salary) from employees
 select job_id, department_id, manager_id, avg(salary), count(*) from employees
     group by job_id, department_id, manager_id
     order by count(*) desc;
-    
+
+-- #GROUP BY Clause(Part 2)
 select job_id, department_id, avg(salary) from employees
     group by job_id, department_id;
 select job_id, avg(salary), sum(salary), max(hire_date), count(*) from employees
     where job_id in ('IT_PROG', 'ST_MAN', 'AC_ACCOUNT')
     group by job_id;
 
+-- #Having Clause
 select job_id, avg(salary) from employees
     where manager_id = 101
     group by job_id
@@ -106,9 +674,11 @@ select job_id, avg(salary) from employees
     group by job_id
     having avg(salary) > 5000;
 
+-- #Nested Group Functions
 select max(avg(salary)), min(avg(salary)) from employees
     group by department_id;
-    
+
+-- #Natural Join    
 select * from employees;
 select * from departments;
 
@@ -119,9 +689,11 @@ select * from employees natural join departments;
 select * from departments natural join employees;
 -- natural join은 on을 써서 연결시킬 필요가 없다
 
+-- #Join with the Using Clause
 select * from employees join departments using (department_id, manager_id);
 -- join 하고싶은 행이 정해져 있다면 using 사용
 
+-- #Handling Ambiguous Column Names
 select e.first_name, last_name, department_name, d.manager_id
     from employees e join departments d
     using (department_id);
@@ -137,6 +709,7 @@ select e.first_name, last_name, department_name, manager_id
     using (manager_id);
 -- using 절을 사용한 column은 alias를 사용할 수 없음
 
+-- #Inner Join & Join with the ON Clause
 select e.first_name, e.last_name, d.manager_id, d.department_name
     from employees e inner join departments d
     on (e.department_id = d.department_id and e.manager_id = d.manager_id);
@@ -152,6 +725,7 @@ select e.first_name, e.last_name, d.manager_id, d.department_name
     on (e.department_id = d.department_id and e.employee_id = d.manager_id);
 -- on은 비교하는 column을 같게 적지 않아도 됨
 
+-- #Multiple Join Operations
 select * from employees;
 select * from departments;
 select * from locations;
@@ -169,6 +743,7 @@ select first_name, last_name, d.department_name, city, postal_code,
 -- join할 때는 join 순서도 중요
 -- country 테이블은 location 테이블이 먼저 join 되었기에 join 가능(location 보다 앞으로 가면 오류)
 
+-- #Restricting Joins
 select first_name, last_name, d.department_name, city, postal_code, 
         street_address
     from employees e join departments d
@@ -180,12 +755,14 @@ select first_name, last_name, d.department_name, city, postal_code,
     and e.first_name = 'David';
 -- where은 여러개의 조건을 쓸 수 없지만 on ~ and로 여러 조건 적용 가능
 
+-- #Self Join
 select worker.first_name, worker.last_name, worker.employee_id, worker.manager_id,
         manager.employee_id, manager.first_name, manager.last_name,
         worker.salary, manager.salary
     from employees worker join employees manager
     on (worker.manager_id = manager.employee_id);
 
+-- Non-Equijoins
 select * from employees;
 select * from jobs;
 
@@ -250,6 +827,7 @@ ORDER BY p1.payment_date;
 
 DROP TABLE payouts;
 
+-- OUTER JOINS
 select first_name, last_name, department_name
     from employees join departments
     using (department_id);
@@ -257,7 +835,8 @@ select first_name, last_name, department_name
 select d.department_id, d.department_name, e.first_name, e.last_name
     from departments d join employees e
     on (d.manager_id = e.employee_id);
-    
+
+-- LEFT OUTER JOIN(LEFT JOIN) & RIGHT OUTER JOIN(RIGHT JOIN)    
 -- select e.first_name, e.last_name, d.department_id, d.department_name
 select d.department_id, d.department_name, e.first_name, e.last_name 
     -- from employees e left join departments d
@@ -285,12 +864,14 @@ select first_name, last_name, department_name, e.department_id, d.department_id,
     on (e.department_id = d.department_id)
     left outer join locations l
     using (location_id);
-    
+
+-- #FULL OUTER JOIN(FULL JOIN)    
 select first_name, last_name, department_name, e.department_id, d.department_id
     from employees e full join departments d
     on (e.department_id = d.department_id);
 -- full = left + right
 
+-- Cross Join(Cartesian Product/Cross Product)
 select first_name, last_name, department_name
     from employees cross join departments;
 -- cross join은 메인 테이블의 한 행이 join된 테이블의 모든 행을 가져가므로 쿼리의 총 행 수는 rows * rows
@@ -332,7 +913,7 @@ select c.department_name, c.job_title, count(e.employee_id) as employee_count
     group by c.department_name, c.job_title
     order by c.department_name, c.job_title;
 
---------------------------------------------------------------------------------
+-- #Oracle's Old Style Join Syntax(ANSI vs Non-ANSI Joins)
 -- Non-ANSI Standard Syntax(옛날 방법(자주 쓰이지 않음))
 select e.first_name, e.last_name, d.department_name, l.city, l.street_address
     from employees e, departments d, locations l
@@ -382,8 +963,8 @@ select d.department_name, e.first_name, e.department_id, d.department_id, e.sala
     -- and e.salary >= 5000
     order by d.department_name, e.first_name;
 -- 조건을 어디에 위치하는지 뭘로 설정하는지에 따라서 추출되는 데이터의 수가 달라짐
---------------------------------------------------------------------------------
 
+-- #Using Subqueries
 select salary from employees
     where employee_id = 145;
 select * from employees
@@ -392,6 +973,7 @@ select * from employees
     where salary > (select salary from employees
                         where employee_id = 145);
 
+-- #Single Row Subqueries
 select department_id from employees
 where employee_id = 145;
     
@@ -414,6 +996,7 @@ select * from employees
 where department_id = (select department_id from employees
                         where employee_id = 178);
                         
+-- #Multiple Row Subqueries                        
 select first_name, last_name, department_id, salary
 from employees
 where salary in (select min(salary)
@@ -449,7 +1032,8 @@ where department_id in (select department_id
                                               where country_id in (select country_id
                                                                    from countries
                                                                    where country_name = 'United Kingdom')));
-                                                                   
+
+-- #Multiple Column Subqueries                                                                   
 select employee_id, first_name, last_name, department_id, salary
 from employees
 where department_id in (select department_id from employees
@@ -475,6 +1059,7 @@ select employee_id, first_name, last_name, job_id, salary
 from employees
 where (job_id, salary) in (select job_id, max_salary from jobs);
 
+-- #Using Subqueries as a Table
 select *
 from (select department_id, department_name, state_province, city
       from departments join locations
@@ -500,6 +1085,7 @@ from employees e join (select department_id, department_name, state_province, ci
                        order by department_id) b
 using (department_id);
 
+-- #SCALAR Subqueries
 select (select sysdate from dual) from dual;
 
 select avg(salary) from employees;
@@ -531,635 +1117,12 @@ select employee_id, first_name, last_name,
             else 'Other'
         end) ciry
 from employees natural join departments;
-                       
+          
 select * from employees
 where (department_id, manager_id) = (select department_id, manager_id from employees
                                      where first_name = 'Luis');
-                       
-select employee_id, first_name, last_name, department_id, salary
-from employees a
-where salary = (select max(salary)
-                from employees b
-                where b.department_id = a.department_id);
--- 서브쿼리만 실행나면 a의 department_id를 찾지 못하기에 오류가 발생        
-                       
-select employee_id, first_name, last_name, department_id, salary
-from employees a
-where (salary, department_id) in (select max(salary), department_id
-                                  from employees b
-                                  group by department_id);
-                                  
-select employee_id, first_name, last_name, a.department_id, salary
-from employees a join (select avg(salary) avg_sal, department_id
-                       from employees
-                       group by department_id) bselect employee_id, first_name, last_name, department_id, salary
-from employees a
-where salary < (select avg(salary)
-                from employees b
-                where b.department_id = a.department_id);
-select employee_id, first_name, last_name, department_id, salary
-from employees a
-where (salary, department_id) in (select max(salary), department_id
-                                  from employees b
-                                  group by department_id);
-select employee_id, first_name, last_name, department_id, salary
-from employees a
-where salary = (select max(salary)
-                from employees b
-                where b.department_id = a.department_id);
-select * from employees
-where (department_id, manager_id) = (select department_id, manager_id from employees
-                                     where first_name = 'Luis');
-select employee_id, first_name, last_name, department_id, salary
-from employees a
-where salary = (select max(salary)
-                from employees b
-                where b.department_id = a.department_id);
-select employee_id, first_name, last_name, department_id, salary
-from employees a
-where (salary, department_id) in (select max(salary), department_id
-                                  from employees b
-                                  group by department_id);
-select employee_id, first_name, last_name, department_id, salary
-from employees a
-where salary < (select avg(salary)
-                from employees b
-                where b.department_id = a.department_id);
-select employee_id, first_name, last_name, department_id, salary
-from employees a
-where (salary, department_id) in (select max(salary), department_id
-                                  from employees b
-                                  group by department_id);
-select employee_id, first_name, last_name, department_id, salary
-from employees a
-where salary = (select max(salary)
-                from employees b
-                where b.department_id = a.department_id);
-select * from employees
-where (department_id, manager_id) = (select department_id, manager_id from employees
-                                     where first_name = 'Luis');
-select department_id, manager_id from employees
-                                     where first_name = 'Luis'
-select first_name, last_name, salary, (10*(salary/5) + 3000) - 100 new_salary from employees order by first_name desc, salary desc;
-select employee_id, hire_date, trunc(hire_date, 'year') truncated_result,
-        round(hire_date, 'year') rounded_result
-    from employees;
-set define on;
-select rtrim(ltrim('www.yourwebsitename.com', 'w.'), '.com') trimmed_text from dual;
-select ltrim('         my Name is Adam      ', 'my') trimmed_text from dual;
-select department_id, avg(salary) from employees
-    group by department_id;
-select * from employees
-    where first_name in ('Steven', 'Peter', 'Adam', 'aa');
-select first_name, hire_date, to_char(hire_date, 'MON')" Formatted Date" 
-    from employees;
-select first_name, last_name
-       from employees;
-select * from employees join departments using (department_id, manager_id);
-select department_id from employees
-where first_name = 'Luis';
-select employee_id, first_name, last_name, salary from employees
-    where employee_id = &emp_id;
-select round(12.536, 3) from dual;
-select trim(leading 'm' from 'My Name is Adam') trimmed_text from dual;
-select first_name, last_name, job_id, salary,
-        case job_id
-            when 'ST_CLERK' then salary * 1.2
-            when 'SA_REP' then salary * 1.3
-            when 'IT_PROG' then salary * 1.4
-            else salary
-        end "updated salary"
-    from employees;
-    
-select first_name, last_name, job_id, salary,
-        case 
-            when job_id = 'ST_CLERK' then salary * 1.2
-            when job_id = 'SA_REP' then salary * 1.3
-            when job_id = 'IT_PROG' then salary * 1.4
-            when job_id = 'AD_PRES' then salary * 1.2
-            when last_name = 'King' then 2 * salary
-            else salary
-        end "updated salary"
-    from employees;
--- 먼저 온 조건이 먼저
 
-select first_name, last_name, job_id, salary
-    from employees
-    where (case
-            when job_id = 'IT_PROG' and salary > 5000 then 1
-            when job_id = 'SA_MAN' and salary > 10000 then 1
-            else 0
-          end) = 1;
-
-select decode(1, 1, 'one', 2, 'two') result from dual;
-select decode(2, 1, 'one', 2, 'two') result from dual;
-select decode(3, 1, 'one', 2, 'two', 3, 'three') result from dual;
-select decode(25, 1, 'one', 2, 'two', 3, 'three', 'Not found') result from dual;
-
-select first_name, last_name, job_id, salary,
-        decode(job_id, 'ST_CLERK', salary * 1.20,
-                        'SA_REP', salary * 1.30,
-                        'IT_PROG', salary * 1.50,
-                         salary) as updated_salary
-    from employees;
-
-select avg(salary), avg(all salary), avg(distinct salary)
-    from employees
-    where job_id = 'IT_PROG';
-
-select avg(commission_pct), avg(nvl(commission_pct, 0)) from employees;
-
-select count(*), count(commission_pct), count(distinct commission_pct),
-        count(nvl(commission_pct, 0)), count(distinct nvl(commission_pct, 0))
-    from employees;
-
-select max(salary), max(hire_date), max(first_name) from employees;
-select * from employees
-    order by first_name;
-
-select min(salary), min(commission_pct), min(nvl(commission_pct, 0)),
-        min(hire_date), min(first_name)
-    from employees;
-    
-select sum(salary), sum(all salary), sum(distinct salary) from employees;    
-
-select listagg(distinct salary, ' - ') within group (order by salary desc) Employees
-    from employees
-    where job_id = 'ST_CLERK';
-    
-select listagg(city, ', ') within group(order by city) as cities 
-    from locations
-    where country_id = 'UK';
--- within group을 쓸거면 order by도 필수로 사용하여야 하고 안쓸거면 within group까지 다 삭제 해야함
-
-select j.job_title,
-        listagg(e.first_name, ', ') within group(order by e.first_name) employees_list
-    from employees e, jobs j
-    where e.job_id = j.job_id
-    group by j.job_title;
-
-select sum(salary), avg(salary), max(hire_date), min(commission_pct),
-        count(distinct manager_id), listagg(job_id, ', ')
-    from employees;
-
-select avg(salary) from employees
-    where job_id = 'IT_PROG' or job_id = 'SA_REP';
-    
-select job_id, avg(salary) from employees
-    group by job_id
-    order by avg(salary) desc;
-
-select job_id, department_id, manager_id, avg(salary), count(*) from employees
-    group by job_id, department_id, manager_id
-    order by count(*) desc;
-    
-select job_id, department_id, avg(salary) from employees
-    group by job_id, department_id;
-select job_id, avg(salary), sum(salary), max(hire_date), count(*) from employees
-    where job_id in ('IT_PROG', 'ST_MAN', 'AC_ACCOUNT')
-    group by job_id;
-
-select job_id, avg(salary) from employees
-    where manager_id = 101
-    group by job_id
-    having avg(salary) > 10000;
--- having 위치는 group by 전후로 어디든 상관없음
-
-select job_id, avg(salary) from employees
---    where manager_id = 101
-    group by job_id
-    having avg(salary) > 5000;
-
-select max(avg(salary)), min(avg(salary)) from employees
-    group by department_id;
-    
-select * from employees;
-select * from departments;
-
-desc employees;
-desc departments;
-
-select * from employees natural join departments;
-select * from departments natural join employees;
--- natural join은 on을 써서 연결시킬 필요가 없다
-
-select * from employees join departments using (department_id, manager_id);
--- join 하고싶은 행이 정해져 있다면 using 사용
-
-select e.first_name, last_name, department_name, d.manager_id
-    from employees e join departments d
-    using (department_id);
-    
-select employees.first_name, last_name, department_name, departments.manager_id
-    from employees join departments
-    using (department_id);
--- alias를 설정하지 않고도 테이블명으로도 가능
--- alias를 설정하고는 테이블명으로 불가능
-
-select e.first_name, last_name, department_name, manager_id
-    from employees e join departments d
-    using (manager_id);
--- using 절을 사용한 column은 alias를 사용할 수 없음
-
-select e.first_name, e.last_name, d.manager_id, d.department_name
-    from employees e inner join departments d
-    on (e.department_id = d.department_id and e.manager_id = d.manager_id);
-
-select e.first_name, e.last_name, manager_id, d.department_name
-    from employees e inner join departments d
-    using (department_id, manager_id);
--- using 절을 사용한 column은 alias를 사용할 수 없음
--- on을 썼을 때와 using을 썼을 때 같은 효과가 있지만 차이점은 on은 column에 alias를 쓸 수 있고 using은 정확한 column명만 쓸 수 있음
-
-select e.first_name, e.last_name, d.manager_id, d.department_name
-    from employees e inner join departments d
-    on (e.department_id = d.department_id and e.employee_id = d.manager_id);
--- on은 비교하는 column을 같게 적지 않아도 됨
-
-select * from employees;
-select * from departments;
-select * from locations;
-select * from countries;
-
-select first_name, last_name, d.department_name, city, postal_code, 
-        street_address, country_id
-    from employees e join departments d
-    on (e.department_id = d.department_id)
-    join locations l
-    -- on (l.location_id = d.location_id);
-    using (location_id)
-    join countries
-    using (country_id);
--- join할 때는 join 순서도 중요
--- country 테이블은 location 테이블이 먼저 join 되었기에 join 가능(location 보다 앞으로 가면 오류)
-
-select first_name, last_name, d.department_name, city, postal_code, 
-        street_address
-    from employees e join departments d
-    on (e.department_id = d.department_id)
-    join locations l
-    on (l.location_id = d.location_id)
-    -- where e.job_id = 'IT_PROG';
-    and e.job_id = 'IT_PROG'
-    and e.first_name = 'David';
--- where은 여러개의 조건을 쓸 수 없지만 on ~ and로 여러 조건 적용 가능
-
-select worker.first_name, worker.last_name, worker.employee_id, worker.manager_id,
-        manager.employee_id, manager.first_name, manager.last_name,
-        worker.salary, manager.salary
-    from employees worker join employees manager
-    on (worker.manager_id = manager.employee_id);
-
-select * from employees;
-select * from jobs;
-
-select e.employee_id, e.first_name, e.last_name, e.job_id, e.salary,
-        j.min_salary, j.max_salary, j.job_id
-    from employees e join jobs j
-    on e.salary > j.max_salary
-    and j.job_id = 'SA_REP';
-    
-select e1.employee_id, e1.first_name, e1.last_name
-    from employees e1 join employees e2
-    on e1.employee_id <> e2.employee_id
-    -- and e1.first_name = e2.first_name;
-    and e1.last_name = e2.last_name;
-    
---Step 1: Creates the payouts table to store monthly payment of each employee.
-CREATE TABLE hr.payouts
-(employee_id   NUMBER NOT NULL, --Employeee ID
- payment_date  DATE,            --Payment date
- payment_type  VARCHAR2(10),    --Payments can be two types, "Salary" and "Bonus"
- payout_amount NUMBER);         --The amount of the payment.
-/
-
---Step 2: Fills out related data into the payouts table.
-DECLARE
-  v_date      DATE := to_date('01/01/2020','DD/MM/YYYY');
-  TYPE        t_employees IS TABLE OF employees%rowtype;
-  r_employees t_employees; 
-BEGIN
-  SELECT * BULK COLLECT INTO r_employees FROM employees;
-    
-  WHILE v_date < to_date('01/01/2025','DD/MM/YYYY') LOOP
-
-    FOR t in 1..r_employees.count() LOOP
-      INSERT INTO payouts values (r_employees(t).employee_id, v_date,'Salary',r_employees(t).salary);
-    END LOOP;
-    
-    v_date := add_months(v_date,1);
-    IF EXTRACT(month from v_date) = 1 then
-      FOR i in 1..r_employees.count LOOP
-        r_employees(i).salary := r_employees(i).salary*1.1; -- 10% salary raise by every year.
-      END LOOP;
-    END IF;  
-
-  END LOOP;
-  commit;
-END;
-/
---Step 3: Queries the table.
-SELECT * FROM payouts
-    where employee_id = 100
-    order by payment_date;
-/
---Step 4: Computes a running total of a particular column using the Non-Equijoins
-SELECT p1.payment_date, p1.payout_amount, SUM(p2.payout_amount) AS total_payout
-FROM payouts p1 JOIN payouts p2
-ON p1.payment_date >= p2.payment_date
-AND p1.employee_id = p2.employee_id
-WHERE p1.employee_id = 100
-GROUP BY p1.payout_amount, p1.payment_date
-ORDER BY p1.payment_date;
-
-DROP TABLE payouts;
-
-select first_name, last_name, department_name
-    from employees join departments
-    using (department_id);
-    
-select d.department_id, d.department_name, e.first_name, e.last_name
-    from departments d join employees e
-    on (d.manager_id = e.employee_id);
-    
--- select e.first_name, e.last_name, d.department_id, d.department_name
-select d.department_id, d.department_name, e.first_name, e.last_name 
-    -- from employees e left join departments d
-    from departments d left join employees e 
-    -- using (department_id);
-    on (e.department_id = d.department_id);
--- left join은 좌측 테이블의 모든 열은 반환하고 우측열은 해당하는 것만 반환
-
-select first_name, last_name, department_name, e.department_id, d.department_id
-    from employees e right outer join departments d
-    on (e.department_id = d.department_id);
-    
-select first_name, last_name, department_name, e.department_id, d.department_id
-    from employees e left outer join departments d
-    on (e.department_id = d.department_id);
-    
-select first_name, last_name, department_name, e.department_id, d.department_id
-    from departments d left outer join employees e 
-    on (e.department_id = d.department_id);
-    
-
-select first_name, last_name, department_name, e.department_id, d.department_id,
-        location_id
-    from employees e right outer join departments d
-    on (e.department_id = d.department_id)
-    left outer join locations l
-    using (location_id);
-    
-select first_name, last_name, department_name, e.department_id, d.department_id
-    from employees e full join departments d
-    on (e.department_id = d.department_id);
--- full = left + right
-
-select first_name, last_name, department_name
-    from employees cross join departments;
--- cross join은 메인 테이블의 한 행이 join된 테이블의 모든 행을 가져가므로 쿼리의 총 행 수는 rows * rows
--- on, using으로 조건을 지정하지 않아도 됨
-
-select first_name, last_name, department_name, job_title
-    from employees cross join departments
-    cross join jobs;
-    
-select * from employees, departments;
--- 사용하면 안될 방법이긴 한데 from 뒤에 테이블을 한번에 적으면 cross join과 같은 효과
-
-select first_name, last_name, department_name, job_title
-    from employees cross join departments
-    cross join jobs
-    where job_title = 'Finance Manager';
-    
-select d.department_name, j.job_title, count(*) as employee_count
-    from employees e join departments d on (e.department_id = d.department_id)
-    join jobs j on (j.job_id = e.job_id)
-    group by d.department_name, j.job_title
-    order by d.department_name, j.job_title;
-
-select c.department_name, c.job_title, count(*) as employee_count
-    from
-        (select d.department_name, j.job_title, j.job_id, d.department_id
-            from departments d cross join jobs j) c
-    left outer join employees e
-    on (e.job_id = c.job_id and e.department_id = c.department_id)
-    group by c.department_name, c.job_title
-    order by c.department_name, c.job_title;
-    
-select c.department_name, c.job_title, count(e.employee_id) as employee_count
-    from
-        (select d.department_name, j.job_title, j.job_id, d.department_id
-            from departments d cross join jobs j) c
-    left outer join employees e
-    on (e.job_id = c.job_id and e.department_id = c.department_id)
-    group by c.department_name, c.job_title
-    order by c.department_name, c.job_title;
-
---------------------------------------------------------------------------------
--- Non-ANSI Standard Syntax(옛날 방법(자주 쓰이지 않음))
-select e.first_name, e.last_name, d.department_name, l.city, l.street_address
-    from employees e, departments d, locations l
-    where e.department_id = d.department_id
-    and d.location_id = l.location_id
-    and d.department_name = 'Finance';
-    
-select e.first_name, e.last_name, d.department_name
-    from employees e, departments d
-    -- where e.department_id = d.department_id(+);
-    where e.department_id(+) = d.department_id;
--- (+)를 작성함으로써 왼쪽 테이블의 모든 행을 가져오고 오른쪽 테이블은 옵션 테이블이 됨
--- 왼쪽 테이블에 (+) -> right join, 오른쪽 테이블에 (+) -> left join
-
-select e.first_name, e.last_name, d.department_name
-    from employees e, departments d
-    where e.department_id(+) = d.department_id
-union
-select e.first_name, e.last_name, d.department_name
-    from employees e, departments d
-    where e.department_id = d.department_id(+);
--- union을 통해서 left, right를 결합하면 full
-
-select first_name, last_name, department_name, e.department_id, d.department_id,
-        l.location_id
-    from employees e, departments d, locations l
-    where e.department_id(+) = d.department_id
-    and d.location_id(+) = l.location_id;
--- join이 2번 될 경우
--- 위의 쿼리는 right join이 두번 된 경우
--- 조건절 연결은 상응하는 열이 있는 테이블끼리 연결
-
-select first_name, last_name, department_name, j.job_title, ed.job_id, j.job_id
-    from (
-            select first_name, last_name, job_id, department_name
-                from employees e, departments d
-                where e.department_id(+) = d.department_id
-        ) ed, jobs j
-    where ed.job_id(+) = j.job_id;
-    
-select d.department_name, e.first_name, e.department_id, d.department_id, e.salary
-    from departments d left join employees e
-    on d.department_id = e.department_id
-    and e.salary >= 5000
-    -- where d.department_id >= 40
-    where e.department_id >= 40
-    -- and e.salary >= 5000
-    order by d.department_name, e.first_name;
--- 조건을 어디에 위치하는지 뭘로 설정하는지에 따라서 추출되는 데이터의 수가 달라짐
---------------------------------------------------------------------------------
-
-select salary from employees
-    where employee_id = 145;
-select * from employees
-    where salary > 14000;
-select * from employees
-    where salary > (select salary from employees
-                        where employee_id = 145);
-
-select department_id from employees
-where employee_id = 145;
-    
-select * from employees
-where department_id = (select department_id from employees
-                        where employee_id = 145)
-and salary <= (select salary from employees
-                where employee_id = 145);
-
-select min(hire_date) from employees;
-
-select * from employees
-where hire_date = (select max(hire_date) from employees
-                    group by department_id);
-                    
-select department_id from employees
-where employee_id = 178;
-
-select * from employees
-where department_id = (select department_id from employees
-                        where employee_id = 178);
-                        
-select first_name, last_name, department_id, salary
-from employees
-where salary in (select min(salary)
-                 from employees
-                 group by department_id);
-
-select first_name, last_name, department_id, salary
-from employees
-where salary in (select salary
-                 from employees
-                 where job_id = 'SA_MAN');
-
-select first_name, last_name, department_id, salary
-from employees
-where salary > any (select salary
-                 from employees
-                 where job_id = 'SA_MAN');
--- any는 최솟값, 최댓값 중 하나라도 크거나 작은 것
-
-select first_name, last_name, department_id, salary
-from employees
-where salary > all (select salary
-                 from employees
-                 where job_id = 'SA_MAN');
--- all은 모든 값보다 크거나 작은 것    
-                        
-select first_name, last_name, department_id, salary
-from employees
-where department_id in (select department_id
-                        from departments
-                        where location_id in (select location_id
-                                              from locations
-                                              where country_id in (select country_id
-                                                                   from countries
-                                                                   where country_name = 'United Kingdom')));
-                                                                   
-select employee_id, first_name, last_name, department_id, salary
-from employees
-where department_id in (select department_id from employees
-                        where employee_id in (103, 105, 110)
-and salary in (select salary from employees
-               where employee_id in (103, 105, 110)));
-
-select employee_id, first_name, last_name, department_id, salary
-from employees
-where (department_id, salary) in (select department_id, salary from employees
-                        where employee_id in (103, 105, 110));
--- 위의 쿼리와 출력하는 행이 다른 이유는 아래(쌍방향 비교)는 모든 비교 열이 동시에 일치하는 역할을 찾기 때문
--- 위는 department_id와 salary가 독립적으로 조건을 보기 때문에 차이가 발생
-
-select employee_id, first_name, last_name, department_id, salary
-from employees
-where (department_id, salary) in (select department_id, max(salary) from employees
-                                  group by department_id);
--- 독립적으로 해야만 좋은 것이 아님
--- 독립적으로 했을 경우 놓쳐지는 부분이 있을 수 있기에 쌍방향을 할지 독립적으로 할지는 본인 판단
-
-select employee_id, first_name, last_name, job_id, salary
-from employees
-where (job_id, salary) in (select job_id, max_salary from jobs);
-
-select *
-from (select department_id, department_name, state_province, city
-      from departments join locations
-      using (location_id)
-      order by department_id);
-
-select manager_id
-from (select *
-      from departments join locations
-      using (location_id)
-      order by department_id);
-
-select *
-from (select *
-      from departments join locations
-      using (location_id)
-      order by department_id);
-
-select e.employee_id, e.first_name, e.last_name, b.department_name, b.city, b.state_province
-from employees e join (select department_id, department_name, state_province, city
-                       from departments join locations
-                       using (location_id)
-                       order by department_id) b
-using (department_id);
-
-select (select sysdate from dual) from dual;
-
-select avg(salary) from employees;
-
-select first_name, last_name, job_id
-from employees
-where salary > (select avg(salary) from employees);
-
-select department_id from employees
-where first_name = 'Luis';
-
-select * from employees
-where department_id = (select department_id from employees
-                       where first_name = 'Luis');
-
-select * from employees
-where department_id = (select department_id from employees
-                       where first_name = 'Luisee');
--- 서브쿼리의 값이 Null이면 전체 쿼리도 Null을 반환
-
-select * from employees
-where department_id = (select department_id from employees
-                       where first_name = 'David');
--- 서브쿼리의 값이 하나가 아니면 전체 쿼리가 작동하지 않음
-
-select employee_id, first_name, last_name,
-        (case
-            when  location_id = (select location_id from locations where postal_code = '99236') then 'San Francisco'
-            else 'Other'
-        end) ciry
-from employees natural join departments;
-                       
-select * from employees
-where (department_id, manager_id) = (select department_id, manager_id from employees
-                                     where first_name = 'Luis');
-                       
+-- #Correlated Subqueries                                    
 select employee_id, first_name, last_name, department_id, salary
 from employees a
 where salary = (select max(salary)
@@ -1194,11 +1157,13 @@ from employees e join departments d
 on (e.department_id = d.department_id)
 order by e.employee_id;
 
+-- # EXISTS Operator & Semijoins
 select employee_id, first_name, last_name, department_id
 from employees a
 where exists
             (select null from employees where manager_id = a.employee_id);
-            
+
+-- #NOT EXISTS Operator            
 select *
 from departments d
 where not exists
@@ -1223,6 +1188,7 @@ INSERT INTO retired_employees(employee_id, first_name, last_name, email, phone_n
 VALUES (2, 'Mary', 'Walker', 'MWALKER', '314.680.1441', '99/09/13', 'SA_REP', 9000, '0.2', 1, 80);
 COMMIT;
 
+-- #UNION and UNION ALL Operators
 select * from retired_employees
 union
 select * from employees;
@@ -1245,16 +1211,19 @@ union all
 select first_name, last_name, email, hire_date, salary, job_id from employees;
 -- 중복O
 
+-- #INTERSECT Operator
 select first_name, last_name, email, hire_date, salary from retired_employees
 intersect
 select first_name, last_name, email, hire_date, salary from employees;
 -- 공통된 것만
 
+-- # MINUS Operator
 select first_name, last_name, email, hire_date, salary from retired_employees
 minus
 select first_name, last_name, email, hire_date, salary from employees;
 -- 첫쿼리에서 둘째쿼리를 제거
 
+-- #Matching Unmatched Queries in SET Operations
 select job_id, department_id, first_name, last_name from employees
 union all
 select job_id, department_id, null, null from job_history;
@@ -1268,6 +1237,7 @@ select job_id, 0 department_id, first_name, last_name from employees
 union all
 select job_id, department_id, null, null from job_history;
 
+-- #Using the ORDER BY Clause with SET Operators
 select first_name, last_name, salary, department_id from employees
 union all
 select first_name, last_name, salary, department_id from employees where department_id = 30
@@ -1290,6 +1260,7 @@ select null, last_name, salary s, department_id from employees where department_
 union
 select first_name, last_name, salary, department_id from retired_employees;
 
+-- #Combining Multiple Queries Using the SET Operators
 --Example 1:
 SELECT first_name, last_name, salary, department_id FROM employees
 UNION ALL
@@ -1337,7 +1308,8 @@ SELECT first_name, last_name, salary, department_id FROM employees WHERE departm
 INTERSECT
 SELECT first_name, last_name, salary, department_id FROM retired_employees)
 ORDER BY salary);
-                       
+
+-- #CREATE TABLE Statement                       
 create table my_employees(
     employee_id number(3) not null,
     first_name varchar2(50) default 'No Name',
@@ -1356,7 +1328,8 @@ create table my_employees(
     hire_date date default sysdate not null,
     email varchar2(20)
 );                       
-                   
+
+-- #CREATE TABLE AS SELECT(CTAS) Statement in Oracle                   
 create table employees_copy2 as select * from employees;
 select * from employees;
 select * from employees_copy;
@@ -1383,6 +1356,7 @@ create table employees_copy7(name, surname, annual_salary)
 select * from employees_copy7;
 desc employees_copy7;
 
+-- #ALTER TABLE Statement
 create table my_employees(
     employee_id number(3) not null,
     first_name varchar2(50) default 'No Name',
@@ -1411,6 +1385,7 @@ alter table employees_copy drop (fax_number, password);
 alter table employees_copy drop (birth_date);
 -- column을 꼭 붙이지 않아도 됨
 
+-- #Marking Columns Unused(Using The SET UNUSED Clause)
 select * from employees_copy;
 desc employees_copy;
 info employees_copy;
@@ -1420,6 +1395,7 @@ alter table employees_copy set unused column last_name online;
 -- column을 꼭 붙이지 않아도 됨
 alter table employees_copy drop unused columns;
 
+-- #READ-ONLY TABLES in SQL
 create table emp_temp as select * from employees;
 select * from emp_temp;
 alter table emp_temp read only;
@@ -1429,6 +1405,7 @@ alter table emp_temp drop (gender);
 drop table emp_temp;
 alter table emp_temp read write;
 
+-- #DROP TABLE Statement
 select * from employees_copy4;
 drop table employees_copy4;
 -- 여러 테이블을 한번에 지울 순 없음
@@ -1436,6 +1413,7 @@ flashback table employees_copy4 to before drop;
 drop table employees_copy4 purge;
 -- purge를 쓰면 flashback 불가
 
+-- #TRUNCATE TABLE Statement
 select * from employees_copy;
 delete from employees_copy;
 truncate table employees_copy;
@@ -1451,6 +1429,7 @@ truncate table employees_performance_test;
 -- truncate는 실행과 동시에 commit 실행(rollback 안됨)
 drop table employees_performance_test;
 
+-- #COMMENT Statement
 create table employees_copy as select * from employees;
 comment on column employees_copy.job_id is 'Stores job title abbreviations';
 comment on table employees_copy is 'This is a copy of employees table';
@@ -1460,6 +1439,7 @@ select * from user_tab_comments where table_name = 'EMPLOYEES_COPY'; -- 테이블명
 select * from user_col_comments where table_name = 'EMPLOYEES_COPY';
 info employees_copy;
 
+-- #RENAME Statement
 desc employees_copy;
 alter table employees_copy rename column hire_date to start_date;
 alter table employees_copy rename column start_date to hire_date;
@@ -1467,7 +1447,8 @@ rename employees_copy to employees_backup;
 select * from employees_copy;
 select * from employees_backup;
 rename employees_backup to employees_copy;
-                       
+
+-- #INSERT Statement(Part 1)                       
 create table jobs_copy as select * from jobs;
 select * from jobs_copy;
 desc jobs_copy;
@@ -1485,6 +1466,8 @@ values ('DATA_ARCH', 'Data Architecture', 8000);
 alter table jobs_copy modify max_salary default 10000;
 insert into jobs_copy (job_id, job_title, min_salary)
 values ('DATA_ARCH2', 'Data Architecture2', 8000);
+
+-- #INSERT Statement(Part 2)
 info jobs_copy;
 insert into jobs_copy (job_id, min_salary)
 values ('DATA_ARCH2', 8000);
@@ -1514,7 +1497,8 @@ create table employee_addresses as
     join departments using (department_id)
     join locations using (location_id)
     where 1=2; -- column만 만들기 위해 false를 만듦
-    
+
+-- #Unconditional Insert Statements    
 create table employees_history as
     select employee_id, first_name, last_name, hire_date
     from employees where 1=2;
@@ -1535,6 +1519,7 @@ insert all
     into employees_history values (106, 'Paul', 'Smith', sysdate + 1)
 select * from dual;
 
+-- #Conditional INSERT ALL Statements
 create table it_programmers as
     select employee_id, first_name, last_name, hire_date from employees where 1=2;
 create table working_in_the_us as
@@ -1583,6 +1568,7 @@ insert all
         into employees_history values (employee_id, first_name, last_name, hire_date)
 select * from employees;
 
+-- #Conditional INSERT FIRST Statements
 create table low_salaries as
     select employee_id, department_id, salary from employees where 1=2;
 create table average_salaries as
@@ -1603,6 +1589,7 @@ insert first
         into high_salaries values (employee_id, department_id, salary)
 select * from employees;
 
+-- #Pivoting Insert
 create table emp_sales (employee_id number(6),
                         week_id number(2),
                         sales_mon number,
@@ -1632,6 +1619,7 @@ insert all
     into emp_sales_normalized values (employee_id, week_id, sales_fri, 'FRI')
 select * from emp_sales;
 
+-- #UPDATE Statement
 drop table employees_copy;
 create table employees_copy as select * from employees;
 
@@ -1660,6 +1648,7 @@ update employees_copy
 set salary = 100000
 where hire_date = (select max(hire_date) from employees);
 
+-- #DELETE Statement
 select * from employees_copy;
 
 delete from employees_copy;
@@ -1672,6 +1661,7 @@ where department_id in (select department_id
                         from departments
                         where upper(department_name) like '%SALES%');
 
+-- #MERGE Statement
 select * from employees_copy;
 delete from employees_copy;
 insert into employees_copy
@@ -1716,7 +1706,8 @@ when matched then
 when not matched then
     insert values (e.employee_id, e.first_name, e.last_name, e.email, e.phone_number,
                    e.hire_Date, e.job_id, e.salary, e.commission_pct, e.manager_id, e.department_id);
-                   
+
+-- # COMMIT and ROLLBACK Statement                   
 select * from employees_copy;
 delete employees_copy where job_id = 'SA_REP';
 rollback; -- f12
@@ -1734,6 +1725,7 @@ create table temp (tmp date);
 drop table temp;
 -- DDL, DCL을 사용할 경우 모두 auto commit 됨
 
+-- #Row Lock in Oracle
 update employees_copy
 set salary = salary + 500
 where employee_id = 102;
@@ -1770,6 +1762,7 @@ where employee_id = 102;
 --set salary = salary + 1000
 --where employee_id = 102;
 
+-- #SAVEPOINT Statement
 select * from employees_copy;
 select * from jobs_copy;
 create table jobs_copy as select * from jobs;
@@ -1792,6 +1785,7 @@ rollback;
 rollback to a;
 -- rollback to로 save point로 이동하면 그 이후에 작성된 save point는 삭제됨
 
+-- #FOR UPDATE Statement
 select * from employees_copy
 where job_id = 'IT_PROG' for update;
 
@@ -1841,6 +1835,7 @@ for update of first_name skip locked;
 --update hr.departments set manager_id = 100
 --where department_id = 60;
 
+-- # FLASHBACK Operations
 -- flashback은 데이터를 되찾을 최후의 수단(의존X)
 select * from recyclebin;
 -- drop한 테이블 들을 볼 수 있음
@@ -1869,6 +1864,7 @@ flashback table employees_copy to before drop;
 create restore point rp_test; -- sys 스키마 사용
 flashback table hr.employees_copy to restore point rp_test;
 
+-- #PURGE Operations
 select * from recyclebin;
 purge recyclebin;
 -- purge -> 영구 삭제
@@ -1880,6 +1876,7 @@ drop table employees_copy purge;
 create table employees_copy3 as select * from employees;
 purge table employees_copy3;
 
+-- #Tracking Changes In Data In a Particular Time
 select * from employees_copy;
 select dbms_flashback.get_system_change_number from dual; -- sys 스키마 실행
 update employees_copy set salary = 10000 where employee_id = 100;
@@ -1897,6 +1894,7 @@ select versions_starttime, versions_endtime, versions_startscn, versions_endscn,
 from employees_copy versions between timestamp (sysdate - interval '5' minute) and sysdate
 where employee_id = 100;
 
+-- #NOT NULL Constraint
 desc jobs;
 insert into jobs values (100, null, 1, 10000);
 insert into jobs values (100, 'My_Job', 1, 10000);
@@ -1910,6 +1908,7 @@ desc managers;
 -- table명을 전체 선택하고 shift+f4 -> 테이블 정보
 -- 제약에 이름을 지정하지 않으면 sys_c로 시작하는 이름으로 오라클이 자동 생성
 
+-- #UNIQUE Constraint
 drop table managers;
 create table managers (manager_id number constraint mgr_mid_uk unique,
                        first_name varchar2(50),
@@ -1931,6 +1930,7 @@ insert into managers values (null, null, null, 100, '123-456-782', null);
 select * from managers;
 update managers set department_id = 90 where manager_id = 100;
 
+-- #PRIMARY KEY Constraint
 create table directors
     (director_id number constraint dir_did_pk primary key,
      first_name varchar2(50),
@@ -1949,6 +1949,7 @@ insert into directors values(null, 'John', 'Goodman');
 insert into executives values(100, 'John', null);
 drop table executives;
 
+-- #FOREIGN KEY Constraint
 drop table managers;
 create table managers (manager_id number constraint mgr_mid_pk primary key,
                        first_name varchar2(50),
@@ -2025,6 +2026,7 @@ insert into employees_copy
 -- 자식 레코드 값을 null로 설정하거나 자식레코드들을 먼저 삭제한 다음 부모키를 삭제
 -- 많은 테이블에서 참조하는 경우, on delete cascade/on delete set null 사용
 
+-- The ON DELETE CASCADE | ON DELETE SET NULL Clause
 drop table managers;
 create table managers (manager_id number constraint mgr_mid_uk unique,
                        first_name varchar2(50),
@@ -2055,7 +2057,7 @@ where employee_id = 105;
 -- on delete set null -> 부모 기록을 삭제하면 관련된 자녀 기록은 전부 null로 설정
 -- 위의 두 방식은 delete에만 적용(update는 안됨)
 
-
+-- #CHECK Constraints
 create table managers2
 (
     manager_id number,
@@ -2086,6 +2088,7 @@ create table managers2
 insert into managers2 values(1, 'Steven', 2500, 'thisisademoemail.xyz');
 insert into managers2 values(1, 'Steven', 2500, 'thisisademoemail.com');
 
+-- #Adding Constraints via ALTER TABLE Statements
 drop table managers;
 drop table employees_copy;
 create table employees_copy as select * from employees;
@@ -2103,6 +2106,7 @@ alter table employees_copy modify last_name not null;
 -- 이미 제약 조건이 있으면 수정 불가
 alter table employees_copy modify first_name not null;
 
+-- #Dropping(Removing) Constraints
 select * from employees_copy;
 create table managers (manager_id number constraint mgr_mid_pk primary key,
                        first_name varchar2(50),
@@ -2120,6 +2124,7 @@ alter table employees_copy drop constraint emp_cpy_emp_id_pk cascade;
 alter table employees_copy drop primary key cascade;
 alter table employees_copy drop constraint SYS_C008297 online;
 
+-- #Cascading Constraints in Oracle
 drop table employees_copy;
 drop table departments_copy;
 create table employees_copy as select * from employees;
@@ -2143,9 +2148,11 @@ alter table employees_copy drop column last_name;
 alter table employees_copy drop column last_name cascade constraint;
 -- cascade constraint -> 참조 무결성 제거
 
+-- #Renaming Constraints
 create table employees_copy as select * from employees;
 alter table employees_copy rename constraint SYS_C008325 to email_nn;
 
+-- #Disabling Constraints
 drop table employees_copy;
 drop table departments_copy;
 create table employees_copy as select * from employees;
@@ -2178,9 +2185,59 @@ disable constraint dept_cpy_id_pk cascade;
 
 select * from departments_copy order by department_id;
 
+-- #Enabling Constraints
 insert into departments_copy values (10, 'TempDept', 100, 1700);
 
 alter table departments_copy enable constraint DEPT_CPY_ID_PK;
 -- disable 상태에서 제약 조건에 관계없이 레코드를 추가했다면 enable 불가
 
 delete from departments_copy where department_name = 'TempDept';
+
+-- #Status of Constraints
+drop table departments_copy;
+create table departments_copy as select * from departments;
+alter table departments_copy add constraint dept_cpy_id_pk primary key (department_id);
+
+alter table departments_copy disable constraint dept_cpy_id_pk;
+-- 유효성 검사나 유효성 검사 옵션 없이 제약 조건을 비활성화 하면 유효성 검사가 되지 않음(not validated)
+alter table departments_copy disable novalidate constraint dept_cpy_id_pk;
+alter table departments_copy disable validate constraint dept_cpy_id_pk;
+alter table departments_copy enable constraint dept_cpy_id_pk;
+alter table departments_copy enable novalidate constraint dept_cpy_id_pk;
+
+update departments_copy set department_id = 10 where department_id = 20;
+select * from departments_copy;
+delete from departments_copy where department_id = 10;
+update departments_copy set department_name = 'Temp' where department_id = 30;
+update departments_copy set department_id = null where department_id = 40;
+update departments_copy set department_id = null where department_id = 50;
+
+-- #Deferring Constraints(Part 1)
+drop table departments_copy;
+create table departments_copy as select * from departments;
+
+alter table departments_copy
+add constraint dept_cpy_id_pk primary key (department_id) deferrable initially deferred;
+
+insert into departments_copy values (10, 'Temp Department', 200, 1700);
+
+-- #Deferring Constraints(Part 2)
+set constraint dept_cpy_id_pk immediate;
+
+insert into departments_copy values (10, 'Temp Department', 200, 1700);
+
+set constraint dept_cpy_id_pk deferred;
+
+set constraint all immediate;
+
+alter session set constraint = immediate;
+
+alter table departments_copy drop constraint dept_cpy_id_pk;
+-- 지연을 바꾸려면 제약 조건을 해제하고 다시 생성해야함(deferred, immediate 둘 다 포함)
+
+alter table departments_copy
+add constraint dept_cpy_id_pk primary key (department_id) not deferrable;
+
+set constraint dept_cpy_id_pk immediate;
+set constraint dept_cpy_id_pk deferred;
+
