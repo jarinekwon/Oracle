@@ -2241,3 +2241,50 @@ add constraint dept_cpy_id_pk primary key (department_id) not deferrable;
 set constraint dept_cpy_id_pk immediate;
 set constraint dept_cpy_id_pk deferred;
 
+-- #Creating Simple Views
+create view empvw90 as
+select * from employees where department_id = 90;
+
+select * from empvw90;
+select * from empvw90 where salary < 20000;
+
+create view empvw20 as
+select employee_id, first_name, last_name from employees where department_id = 20;
+
+select * from empvw20;
+select first_name, last_name from empvw20;
+
+create view empvw30 as
+select employee_id e_id, first_name name, last_name surname from employees where department_id = 30;
+
+select * from empvw30;
+
+create view empvw40 (e_id, name, surname, email) as
+select employee_id, first_name, last_name, email from employees where department_id = 40;
+
+select * from empvw40;
+
+create view empvw41 (e_id, name, surname, email) as
+select employee_id eid, first_name, last_name, email from employees where department_id = 40;
+
+select * from empvw41;
+
+-- #Creating Complex Views
+create view emp_cx_vw (dname, min_sal, max_sal) as
+    select distinct upper(department_name), min(salary), max(salary)
+    from employees e join departments d
+    using(department_id)
+    group by department_name;
+    
+select * from emp_cx_vw;
+
+-- #Modifying Views
+select * from empvw30;
+
+create or replace view empvw30 as
+select employee_id e_id, first_name name, last_name surname, job_id
+from employees where department_id = 30;
+
+create or replace view empvw30 as
+select employee_id e_id, first_name ||' '|| last_name name, job_id
+from employees where department_id = 30;
