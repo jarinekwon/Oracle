@@ -2288,3 +2288,148 @@ from employees where department_id = 30;
 create or replace view empvw30 as
 select employee_id e_id, first_name ||' '|| last_name name, job_id
 from employees where department_id = 30;
+
+-- #Performing DML Operations with Views
+-- simple view
+drop table employees_copy cascade constraints;
+create table employees_copy as select * from employees;
+
+create view empvw60 as
+select employee_id, first_name, last_name, email, hire_date, job_id
+from employees_copy
+where department_id = 60;
+
+select * from employees_copy;
+select * from employees_copy where department_id = 60;
+select * from empvw60;
+
+insert into empvw60 values (213, 'Alex', 'Hummel', 'AHUMMEL', sysdate, 'IT_PROG');
+-- insert는 가능하지만 view에서 보이진 않음
+-- view의 상위테이블에서도 조건을 넣은 select문에서는 표시되지 않지만 조건이 없는 전체 테이블 조회에서는 볼 수 있음(60의 department_id는 insert가 되지 않았기에)
+
+create or replace view empvw60 as
+select employee_id, first_name, last_name, email, hire_date, job_id, department_id
+from employees_copy
+where department_id = 60;
+
+insert into empvw60 values (214, 'Alex', 'Hummel', 'AHUMMEL', sysdate, 'IT_PROG', 60);
+-- 여기서는 department_id에 60을 추가 했기에 where department_id = 60으로 조회할 경우 조회가 가능하고 view에서도 볼 수 있음
+update empvw60 set job_id = 'SA_MAN' where employee_id = 214;
+delete from empvw60;
+
+-- complex view
+drop table employees_copy cascade constraints;
+create table employees_copy as select * from employees;
+
+create or replace view empvw60 as
+select distinct employee_id, first_name, last_name, email, hire_date, job_id, department_id
+from employees_copy
+where department_id = 60;
+
+insert into empvw60 values (214, 'Alex', 'Hummel', 'AHUMMEL', sysdate, 'IT_PROG', 60);
+update empvw60 set job_id = 'SA_MAN' where employee_id = 214;
+delete from empvw60;
+
+create or replace view empvw60 as
+select distinct employee_id, first_name, last_name, email, hire_date, job_id, department_id
+from employees_copy
+where department_id = 60;
+
+insert into empvw60 values (1, 214, 'Alex', 'Hummel', 'AHUMMEL', sysdate, 'IT_PROG', 60);
+update empvw60 set job_id = 'SA_MAN' where employee_id = 214;
+delete from empvw60;
+
+create or replace view empvw60 as
+select employee_id, first_name, last_name, email, hire_date, job_id, department_id, salary*12 annual_salary
+from employees_copy
+where department_id = 60;
+
+insert into empvw60 values (214, 'Alex', 'Hummel', 'AHUMMEL', sysdate, 'IT_PROG', 60, 120000);
+update empvw60 set job_id = 'SA_MAN' where employee_id = 107;
+delete from empvw60 where employee_id = 107;
+-- update와 delete는 가능
+-- 어떤 경우에는 가능한 작업이 있고, 어떤 경우에는 불가능한 작업이 있음
+
+select * from employees_copy where department_id = 60;
+select * from empvw60;
+-- complex view에서는 DML 작업이 거의 불가능함(되는 경우도 존재)
+-- view에서 DML작업을 하는 것을 추천하진 않음
+
+-- #Using the WITH CHECK OPTION Clause in SQL
+drop table employees_copy;
+create table employees_copy as select * from employees;
+
+create or replace view empvw80 as
+    select employee_id, first_name, last_name, email, hire_date, job_id
+    from employees_copy
+    where department_id = 80;
+    
+select * from empvw80;
+
+insert into empvw80 values (215, 'John', 'Brown', 'JBROWN', sysdate, 'SA_MAN');
+
+select * from employees_copy;
+-- department_id를 insert하지 않았기에 view에서는 확인이 불가능하지만 테이블에서는 확인이 가능
+
+create or replace view empvw80 as
+    select employee_id, first_name, last_name, email, hire_date, job_id
+    from employees_copy
+    where department_id = 80
+with check option constraint emp_dept80_chk;
+
+insert into empvw80 values (216, 'John2', 'Brown2', 'JBROWN2', sysdate, 'SA_MAN');
+-- check option에 where는 80이기에 80이 포함되지 않아 추가 불가
+
+create or replace view empvw80 as
+    select employee_id, first_name, last_name, email, hire_date, job_id, department_id
+    from employees_copy
+    where department_id = 80
+with check option;
+
+insert into empvw80 values (217, 'John3', 'Brown3', 'JBROWN3', sysdate, 'SA_MAN', 80);
+-- check option에 where는 80이기에 80이 포함되어 추가 가능
+insert into empvw80 values (218, 'John4', 'Brown4', 'JBROWN4', sysdate, 'SA_MAN', 60);
+-- check option에 where는 80이기에 80이 포함되지 않아 추가 불가
+
+create or replace view empvw80 as
+    select employee_id, first_name, last_name, email, hire_date, job_id, department_id
+    from employees_copy
+    where department_id = 80
+    and job_id = 'SA_MAN'
+with check option;
+
+insert into empvw80 values (219, 'John5', 'Brown5', 'JBROWN5', sysdate, 'IT_PROG', 80);
+-- check option에 where는 'SA_MAN'이기에 'SA_MAN'이 포함되지 않아 추가 불가
+update empvw80 set first_name = 'Steve' where employee_id = 217;
+update empvw80 set department_id = 70 where employee_id = 217;
+-- check option에 포함되지 않은 column은 수정이 가능하지만 포함된 column은 수정 불가
+
+-- check option이 포함된 view는 complex view로 분류
+
+select * from user_constraints where table_name = 'EMPVW80';
+
+-- #Using the WITH READ ONLY Clause on Views(Preventing DMLs)
+-- READ ONLY를 하면 DML 적용이 완전 불가
+create or replace view empvw80 as
+    select employee_id, first_name, last_name, email, hire_date, job_id, department_id
+    from employees_copy
+    where department_id = 80
+    and job_id = 'SA_MAN'
+with read only;
+
+select * from empvw80;
+
+insert into empvw80 values (219, 'John3', 'Brown3', 'JBROWN3', sysdate, 'IT_PROG', 80);
+update empvw80 set first_name = 'Steve' where employee_id = 217;
+delete from empvw80 where employee_id = 217;
+-- DML 사용이 완전 불가능
+
+-- #Dropping Views
+select * from user_constraints where table_name = 'EMPVW80';
+drop view empvw20;
+drop view empvw30;
+drop view empvw40;
+drop view empvw41;
+drop view empvw60;
+drop view empvw80;
+-- view를 drop하면 모든 관련 제약 조건도 drop
