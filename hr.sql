@@ -2433,3 +2433,57 @@ drop view empvw41;
 drop view empvw60;
 drop view empvw80;
 -- view를 drop하면 모든 관련 제약 조건도 drop
+
+-- #The Dictionary view
+select * from dictionary;
+-- hr, sys 스키마로 실행하면 dictionary의 모든 테이블 갯수보다 더 적고 comments가 보안 상의 이유로 숨겨짐
+-- sys-cdb 스키마로 실행하면 더 많은 테이블을 볼 수 있고 comments의 내용을 볼 수 있음
+
+select * from dict;
+-- dictionary랑 같음
+
+select * from dictionary
+where table_name = 'USER_CONSTRAINTS';
+
+select * from dictionary
+where upper(comments) like '%CONSTRAINT%';
+
+-- #Difference Between USER, ALL, DBA and V$ Prefixes
+-- USER_ Prefixes < ALL_ Prefixes < DBA_ Prefixes
+-- USER Prefix: 사용자의 스키마에 포함된 모든 객체를 포함
+-- ALL Prefix: 사용자의 스키마에 포함된 모든 객체뿐만 아니라, 사용자가 접근할 수 있는 모든 스키마의 객체도 포함
+-- DBA Prefix: 모든 사용자의 모든 객체를 포함. 오직 DBA와 필요한 권한을 가진 사용자만 Data Dictionary view에 접근 가능
+-- V$ Prefix: 데이터베이스 성능에 대한 정보를 포함하는 뷰 제공. 오직 DBA와 필요한 권한을 가진 사용자만 Data Dictionary view에 접근 가능
+
+-- #USER_OBJECTS, ALL_OBJECTS and DBA_OBJECTS Views
+select * from user_objects;
+-- 어떤 스키마를 사용하느냐에 따라 개체 수가 달라짐
+select * from user_catalog;
+select * from cat;
+-- cataglog와 cat의 내용 같음
+
+select * from all_objects;
+-- 스키마의 모든 개체를 볼 수 있음
+-- 어떤 스키마를 사용하느냐에 따라 개체 수가 달라짐
+
+select * from dba_objects;
+-- hr 스키마는 필수 권한이 없기 때문에 볼 수 없음(system 스키마는 가능)
+
+-- #USER_TABLES Data Dictionary View
+select * from user_tables;
+select * from tabs;
+
+select * from all_tables;
+
+select * from dba_tables;
+-- system 스키마로 사용 가능
+
+-- #USER_TAB_COLUMNS Data Dictionary View
+select * from user_tab_columns;
+select * from cols;
+
+select * from user_tab_columns
+where table_name = 'DEPARTMENTS';
+
+select * from all_tab_columns;
+
