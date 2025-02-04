@@ -2487,3 +2487,36 @@ where table_name = 'DEPARTMENTS';
 
 select * from all_tab_columns;
 
+-- #USER_CONSTRAINTS Data Dictionary View
+-- type of constraint
+-- C -> Check Constraint
+-- P -> Primary Key
+-- U -> Unique Key
+-- R -> Refrential Integirity(Foreign Key)
+-- V -> With Check Option(Used For Views)
+-- O -> With Read-Only(Used For Views)
+
+select * from user_constraints;
+select * from all_constraints;
+select * from dba_constraints;
+
+-- #USER_CONS_COLUMNS Data Dictionary View
+select * from user_cons_columns
+where table_name = 'EMPLOYEES';
+
+select b.constraint_type, a.*, b.r_constraint_name from user_cons_columns a join user_constraints b
+on (a.table_name = b. table_name and a.constraint_name = b.constraint_name)
+order by a.table_name, a.constraint_name;
+
+select * from all_cons_columns;
+select * from dba_cons_columns;
+
+-- #USER_VIEWS Data Dictionary View
+select * from user_views;
+
+-- #USER_TAB_COMMENTS and USER_COL_COMMENTS Data Dictionary Views
+select * from user_tab_comments
+where upper(comments) like '%EMPLOYEE%';
+
+select * from user_col_comments
+where upper(comments) like '%SALARY%';
