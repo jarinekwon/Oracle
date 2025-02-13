@@ -2662,3 +2662,57 @@ PURGE RECYCLEBIN;
 -- Identity 컬럼은 깁노적으로 Not Null 및 Not Deferrable 제약 조건을 가짐
 -- Identity 컬럼을 생성하려면 Create Sequence 권한이 필요
 
+-- #Creating, Using and Dropping Synonyms
+create synonym test_syn for employees;
+
+select * from test_syn;
+
+create or replace synonym test_syn for departments;
+
+select * from test_syn;
+
+drop synonym test_syn;
+
+create synonym test_syn for sys.user_objects;
+
+select * from test_syn;
+
+select * from hr.test_syn;
+
+create or replace public synonym test_syn for hr.employees;
+
+select * from test_syn;
+
+drop synonym test_syn;
+
+create or replace public synonym test_syn for system.redo_db;
+
+select * from test_syn;
+
+create synonym employees for employees;
+-- 객체와 같은 이름의 동의어는 작성할 수 없음
+create public synonym employees for hr.employees;
+-- public 키워드를 추가하고 system 스키마에서 실행하면 가능
+
+create synonym employees for departments;
+-- 불가능
+create synonym employees2 for departments22;
+-- 가능
+
+select * from employees2;
+
+drop public synonym test_syn;
+drop synonym employees2;
+drop public synonym employees;
+
+-- #Analyzing The USER_SYNONYMS View
+describe user_synonyms;
+-- origin_con_id -> 루트 데이터베이스에 있는 개체 수
+
+select * from user_synonyms;
+
+create synonym emps for employees;
+
+select * from dba_synonyms;
+
+drop synonym emps;
