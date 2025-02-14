@@ -2716,3 +2716,185 @@ create synonym emps for employees;
 select * from dba_synonyms;
 
 drop synonym emps;
+
+-- #How to Create Indexes
+drop table employees_copy;
+create table employees_copy as select * from employees;
+-- B-Tree Index가 기본 타입 -> Index Type = Normal
+-- create table을 select 구문으로 사용할 때 인덱스를 복사하지 않음
+
+create unique index emp_cpy_eid_idx on employees_copy (employee_id);
+
+select * from employees_copy where employee_id = 103;
+-- 계획 설명(f10)을 이용해서 index를 만들기 전과 후의 cost 변화 비교(3 -> 1)
+
+select * from employees_copy where last_name = 'King';
+
+-- create unique index emp_cpy_lname_idx on employees_copy (last_name);
+-- 열에 중복값이 있기 때문에 unique를 사용할 수 없음
+create index emp_cpy_lname_idx on employees_copy (last_name);
+-- nonunique index는 unique index보다 성능이 떨어짐
+
+create index emp_cpy_name_idx on employees_copy (last_name, first_name);
+
+select * from employees_copy where last_name = 'King' and first_name = 'Steven';
+-- where 절에 어떤 조건이 들어가냐에 따라 더 적합한 index를 사용
+-- last_name만 물었을 때는 lname_idx, last, first 둘 다 물을 때는 name_idx
+
+create bitmap index emp_cpy_comm_idx on employees_copy (commission_pct);
+-- bitmap index에서는 unique를 사용할 수 없음
+
+select * from employees_copy where commission_pct = 0.4;
+
+-- null column은 b-tree index에서는 index 되지 않음(테이블 전체를 읽게 됨)
+-- bitmap, function based index만 null 값을 function based index 값을 바꿀 수 있음
+-- 사용할 기능에 따라 선택하여 index 생성
+
+-- #How to Create Indexes While Table Creation
+create table sales (sale_id number primary key,
+                    sale_date date not null,
+                    customer_id number not null,
+                    transaction_id number unique,
+                    sale_detail_text varchar2(4000));
+-- primary key 또는 unique key를 위해 index가 자동생성 됨(sys~)    
+-- shift + f4 해서 어떤 key의 index인지를 확인
+                    
+select * from sales where sale_id = 201 and transaction_id = 30123;
+
+drop table sales;
+create table sales (sale_id number primary key using index (create index sales_sale_id_idx on sales(sale_id)),
+                    sale_date date not null,
+                    customer_id number not null,
+                    transaction_id number unique using index (create index sales_tran_id_idx on sales(transaction_id)),
+                    sale_detail_text varchar2(4000));
+                    
+drop table sales;
+create table sales (sale_id number primary key using index (create unique index sales_sale_id_idx on sales(sale_id)),
+                    sale_date date not null,
+                    customer_id number not null,
+                    -- transaction_id number unique using index (create bitmap index sales_tran_id_idx on sales(transaction_id)),
+                    -- transaction_id number using index (create bitmap index sales_tran_id_idx on sales(transaction_id)),
+                    -- transaction_id number using index (create unique index sales_tran_id_idx on sales(transaction_id)),
+                    transaction_id number unique using index (create unique index sales_tran_id_idx on sales(transaction_id)),
+                    sale_detail_text varchar2(4000));    
+-- primary key나 unique key 제약 조건으로 bitmap index를 생성할 수 없음
+
+create table sales2 (sale_id number primary key using index sales_sale_id_idx,
+                     sale_date date not null,
+                     customer_id number not null,
+                     transaction_id number unique,
+                     sale_detail_text varchar2(4000));
+                     
+drop table sales;
+create table sales (sale_id number,
+                    sale_date date not null,
+                    customer_id number not null,
+                    transaction_id number,
+                    sale_detail_text varchar2(4000));
+                    
+alter table sales add primary key (sale_id) using index (create unique index sales_sale_id_idx on sales(sale_id));
+
+create unique index sales_tran_id_idx on sales(transaction_id);
+
+alter table sales add unique (transaction_id) using index sales_tran_id_idx;
+
+-- #How to Remove(drop) Indexes
+drop index emp_cpy_comm_idx;
+
+-- #Function-Based Indexes
+drop table employees_copy;
+create table employees_copy as select * from employees;
+
+create index emp_cpy_lname_idx on employees_copy(last_name);
+
+select * from employees_copy where last_name = 'KING';
+-- 대문자로 쿼리를 실행했기 때문에 결과값 없음
+-- upper 대문자, lower 소문자, initcap 혼합(대소문자 구별x) 사용
+
+select * from employees_copy where upper(last_name) = 'KING';
+-- index가 적용되지 않고 cost가 더 높게 나옴
+
+drop index emp_cpy_lname_idx;
+
+create index emp_cpy_lname_idx on employees_copy(upper(last_name));
+-- index_type이 function-based로 바뀜
+
+select * from employees_copy where upper(last_name) = 'KING';
+-- function-based index가 적용된 후 cost가 낮아짐
+
+select * from employees_copy where lower(last_name) = 'KING';
+select * from employees_copy where last_name = 'KING';
+-- upper를 사용하지 않고 lower나 아무 함수 없이 사용하면 다시 cost 증가
+
+-- #Multiple Indexes on the Same Columns & Invisible Indexes
+drop table employees_copy;
+create table employees_copy as select * from employees;
+create index emp_cpy_dpt_id_idx on employees_copy (department_id);
+create index emp_cpy_dpt_id_idx2 on employees_copy (department_id) invisible;
+-- 하나의 index만 보이더라도 같은 열 리스트에 같은 타입으로 보이든 안보이든 index를 만들 수 없음
+create bitmap index emp_cpy_dpt_id_idx2 on employees_copy (department_id);
+-- 서로 다른 타입이라도 하나의 인덱스를 동시에 같은 열에서 볼 수 있음(생성 불가 이유)
+create bitmap index emp_cpy_dpt_id_idx2 on employees_copy (department_id) invisible;
+-- invisible하면 보이지 않기에 생성 가능
+select * from employees_copy where department_id = 20;
+select /*+ use_invisible_indexes index (employees_copy emp_cpy_dpt_id_idx2) */*
+-- /*+ hint */ -> 최적화 프로그램이 특정한 행동을 취하도록 강요하는 명령(쿼리의 결과를 바꾸진 않음)
+    from employees_copy where department_id = 20;
+-- 위의 쿼리를 사용했을 때는 b-tree index를 사용하였지만 hint를 사용함으로써 bitmap을 사용하도록 강요
+-- idx2를 drop하면 bitmap을 사용하지 않고 idx인 b-tree 사용(쿼리의 결과를 바꾸진 않음)
+drop index emp_cpy_dpt_id_idx2;
+alter index emp_cpy_dpt_id_idx invisible;
+-- 위의 select에서는 invisible index가 보이지 않지만 밑의 select에서는 hint로 use_invisible을 사용하였기에 보임
+
+create unique index emp_cpy_empid_idx on employees_copy (employee_id) invisible;
+select * from employees_copy where employee_id = 102;
+select /*+ use_invisible_indexes index (employees_copy emp_cpy_dpt_id_idx2) */*
+    from employees_copy where employee_id = 103;
+-- hint를 사용하여 invisible이 보임
+alter session set optimizer_use_invisible_indexes = true;
+-- 모든 쿼리가 현재 사용 세션에서 invisible index를 자동으로 사용
+
+-- #Analyzing the USER_INDEXES and USER_IND_COLUMNS Views
+select * from user_indexes;
+-- INDEX_TYPE
+-- NORMAL -> B-tree index
+-- IOT -> Index-Organized Table index
+-- LOB -> Large Object index
+-- ...
+select * from user_ind_columns;
+-- index는 열의 위치에 기반하여 작동하기 때문에 column_position 중요
+select * from user_ind_columns where table_name = 'EMPLOYEES';
+select * from employees where first_name = 'Steven';
+select * from employees where last_name = 'King';
+select * from employees where last_name = 'King' and first_name = 'Steven';
+
+-- #How to Modify(Alter) Indexes
+-- 원래 index 구조를 생성하고 나면 수정할 수 없음
+-- 하지만 나중에 바꿀 수 있는 속성들이 있음
+
+drop table employees_copy;
+create table employees_copy as select * from employees;
+alter table employees_copy add primary key (employee_id);
+select * from user_indexes where table_name = 'EMPLOYEES_COPY';
+alter index SYS_C008467 rename to emp_cpy_eid_idx;
+select * from employees_copy where employee_id = 104;
+alter index emp_cpy_eid_idx unusable;
+-- index 사용 불가
+select index_name, status from user_indexes where table_name = 'EMPLOYEES_COPY';
+alter index emp_cpy_eid_idx compile;
+-- compile은 index가 유효하지 않을 때만 작동(사용할 수 없는 index를 사용하기 위해)
+alter index emp_cpy_eid_idx rebuild;
+-- index를 다시 활성화시킴
+alter index emp_cpy_eid_idx disable;
+-- index 기반 함수만 활성화 하거나 비활성화 가능
+-- 유효한거랑 활성화 된거랑은 다름(valid, enable)
+-- 유효하지만 활성화되지 않을 수 있고 유효하지 않지만 활성화 될 수 있음
+create index emp_cpy_name_idx on employees_copy(upper(last_name), first_name);
+select index_name, index_type, status, funcidx_status from user_indexes where table_name = 'EMPLOYEES_COPY';
+select * from employees_copy where upper(last_name) = 'STEVEN';
+-- index가 disabe 되면 검색 불가
+alter index emp_cpy_name_idx disable;
+alter index emp_cpy_name_idx enable;
+alter index emp_cpy_name_idx invisible;
+select index_name, index_type, status, funcidx_status, visibility from user_indexes where table_name = 'EMPLOYEES_COPY';
+alter index emp_cpy_name_idx visible;
