@@ -2898,3 +2898,53 @@ alter index emp_cpy_name_idx enable;
 alter index emp_cpy_name_idx invisible;
 select index_name, index_type, status, funcidx_status, visibility from user_indexes where table_name = 'EMPLOYEES_COPY';
 alter index emp_cpy_name_idx visible;
+
+-- #How to Create a User in Oracle Database
+create user temp_user identified by 123;
+-- hr 스키마는 권한이 없어서 불가
+-- system 스키마 사용(system은 pluggable database이기 때문에 권한이 있으므로 생성 가능)
+drop user temp_user;
+
+create user temp_user identified by 123
+-- password expire account unlock container = all;
+password expire account unlock container = current;
+drop user temp_user cascade;
+select * from dba_users;
+grant create session to temp_user;
+
+-- #Changing Database Users' Passwords in Oracle Database
+alter user temp_user identified by abc123;
+-- 다른 사용자의 비밀번호를 바꿀 수 없음(hr에서 temp_user 비밀번호 변경 불가)
+
+password
+
+-- #Granting System Privileges
+select * from system_privilege_map;
+-- sys
+
+select * from user_sys_privs;
+-- temp_user
+
+select * from dba_sys_privs;
+-- temp_user
+
+create table temp_table (temp_column number);
+-- temp_user
+
+-- grant create table, create view to temp_user with admin option container = all;
+-- temp_user는 pluggable database에 로컬 사용자라서 모든 컨테이너 데이터베이스에 이 특권을 줄 수 없음
+grant create table, create view to temp_user with admin option container = current;\
+-- sys
+
+select * from user_sys_privs;
+-- temp_user
+
+create table temp_table (temp_column number);
+-- temp_user
+
+select * from session_privs;
+-- temp_user
+
+-- sysdba -> user: sys / sysoper -> user: public
+
+-- #Roles and PUBLIC
