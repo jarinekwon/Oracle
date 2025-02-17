@@ -3104,3 +3104,19 @@ create table temp
   
 drop table temp;
 -- temp_user
+
+-- #Searching Privileges Using Data Dictionary Views
+-- table_privilege_map -> Contains information about access privilege codes
+-- role_sys_privs -> Lists system privileges granted roles
+-- role_tab_privs -> Lists table privileges granted to roles
+-- role_role_privs -> Lists roles granted to other roles
+-- user_col_privs -> Lists ghrants on columns for which the user is the owner, grantor, grantee
+-- user_sys_privs -> Lists system privileges granted to the user
+-- user_role_privs -> Lists roles accessible by the user
+-- session_privs -> Lists privileges which the user currently has set
+-- user_tab_privs -> Lists grants on objects for which the user is the owner, grantor or grantee
+-- user_code_role_privs -> Lists all the roles that are associated with the program units owned by the user
+-- all_tab_privs_made -> Lists user's grants and grants on user's objects
+-- all_tab_privs_recd -> Lists grants on objects for which the user or PUBLIC is the grantee
+-- user_col_privs_recd -> Lists object privileges granted to the user on specific columns
+
