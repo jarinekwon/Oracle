@@ -2948,3 +2948,159 @@ select * from session_privs;
 -- sysdba -> user: sys / sysoper -> user: public
 
 -- #Roles and PUBLIC
+create role developer;
+grant create session, create sequence, create table to developer;
+select * from dba_sys_privs where grantee = 'DEVELOPER';
+select * from dba_sys_privs where grantee = 'TEMP_USER';
+grant developer to temp_user;
+grant create session, create sequence, create table, create synonym to developer;
+grant create synonym to developer;
+create role test_role identified by 123;
+grant test_role to temp_user;
+grant select any table to test_role;
+drop role test_role;
+-- system
+
+create sequence temp_seq;
+select * from user_role_privs;
+select * from session_privs;
+create synonym temp_synonym for temp_table;
+-- temp_user(user)가 developer(role)의 권한을 가져와서 developer에 준 권한을 temp_user도 사용 가능
+select * from session_privs;
+select * from user_role_privs;
+-- defualt_role column에서 test_role이 no인 이유는 사용자에게 직접 부여되는 역할은 default이지만 암호로 보호되는 것은 default가 아님
+-- 암호 인증 role이나 보안 응용 프로그램 role은 간접적으로 줄 수 없음(role->role이 아닌 role->user(직접적)이어야 함)
+-- default가 아니기에 해당 세션에서는 test_role을 볼 수 없음
+-- role이 disable이면 해당 role에 내재된 privilege도 disable
+-- 세션에 사용하려면 role을 활성화 해야함
+set role test_role identified by 123;
+-- 비활성화 -> 활성화
+select * from session_privs;
+set role all;
+-- all 키워드는 default_role에 한해서만 작동
+set role test_role identified by 123, developer;
+-- test_role과 developer 두 가지 role(default + protected) 모두 사용
+set role none;
+-- 모든 role 비활성화
+set role all except test_role;
+-- except만 제외하고 모든 role 활성화
+select * from hr.employees;
+-- select any table privilege 때문에 다른 세션의 테이블도 조회 가능
+-- temp_user
+
+-- #Granting Object Privileges
+select * from employees_copy;
+grant select, delete on employees_copy to temp_user, developer;
+-- 이전 강의에서 temp_user가 developer의 권한을 갖게하여 developer만 권한을 줘도 temp_user가 실행 되지만 다중 권한부여가 가능함을 보여주기 위함
+grant update (salary, commission_pct) on employees_copy to temp_user;
+grant update on employees_copy to developer;
+grant insert on employees_copy to public;
+-- public을 사용함으로써 모든 사용자들이 insert가 가능
+grant all on employees_copy to temp_user;
+-- 모든 권한 부여
+-- hr
+
+grant unlimited tablespace to temp_user;
+-- tablespace -> system privilege(system 세션 사용)
+
+select * from employees_copy;
+update hr.employees_copy set salary = 100;
+update hr.employees_copy set manager_id = 100;
+insert into hr.employees_copy (employee_id, first_name, last_name, email, hire_date, job_id, salary)
+    values (207, 'Alex', 'Brown', 'ABROWN', sysdate, 'IT_PROG', 5000);
+create index idx_emp_cpy on hr.employees_copy(email);
+-- tablespace 권한
+-- 테이블을 만들려면 테이블 공간이나 모든 공간에 대한 특권이 필요
+select * from user_tab_privs;
+-- temp_user
+
+-- #Definer's Rights and Invoker's Rights
+create table temp_table (temp_column varchar2(100));
+insert into temp_user.temp_table values ('User: HR --> Direct Insert - INSERT Privilege for Temp_user''s table: No');
+exec temp_user.insert_into_temp_table('User: HR --> Procedure: Definer''s Rights - INSERT Privilege for Temp_user''s table: No');
+select * from temp_table;
+select * from temp_user.temp_table;
+exec temp_user.insert_into_temp_table('User: HR --> Procedure: Invoker''s Rights - INSERT Privilege for Temp_user''s table: No');
+drop table temp_table;
+select * from temp_user.temp_view;
+select * from temp_user.temp_table2;
+-- hr
+
+create table temp_table (temp_column varchar2(100));
+/
+grant create procedure, create view to temp_user;
+/
+create or replace procedure insert_into_temp_table (insert_value in varchar2) is
+begin
+    insert into temp_table values (insert_value);
+end;
+/
+grant execute on insert_into_temp_table to hr;
+/
+select * from temp_table;
+/
+exec temp_user.insert_into_temp_table('User: TEMP_USER --> Procedure: Definer''s Rights');
+/
+create or replace procedure insert_into_temp_table (insert_value in varchar2) authid current_user is
+begin
+    insert into temp_table values (insert_value);
+end;
+/
+exec temp_user.insert_into_temp_table('User: TEMP_USER --> Procedure: Invoker''s Rights');
+/
+select object_name, object_type, status from user_objects where object_name = 'INSERT_INTO_TEMP_TABLE';
+drop table temp_table;
+/
+drop procedure insert_into_temp_table;
+/
+create table temp_table2 (temp_column varchar2(100));
+insert into temp_table2 values('View Test: Temp Table in TEMP_USER');
+/
+create or replace function get_last_record_from_temp_table return varchar2 authid current_user is
+temp_text varchar2(100);
+begin
+    select temp_column into temp_text from temp_table2 where rownum = 1;
+    return temp_text;
+end;
+/
+create or replace view temp_view bequeath definer as
+    select get_last_record_from_temp_table temp_text from dual;
+/
+grant select on temp_view to hr;
+/
+create or replace view temp_view bequeath current user as
+    select get_last_record_from_temp_table temp_text from dual;
+/
+drop view temp_view;
+drop function get_last_record_from_temp_table;
+drop table temp_table2;
+-- temp_user
+
+-- #Revoking Privileges and Roles
+alter table employees_copy add primary key (employee_id);
+grant all on employees_copy to temp_user;
+revoke all on employees_copy from temp_user;
+grant select on system.redo_db to temp_user;
+-- hr
+
+select * from dba_sys_privs where grantee = 'TEMP_USER';
+select * from dba_tab_privs where grantee = 'TEMP_USER';
+select * from dba_role_privs where grantee = 'TEMP_USER';
+revoke create view from temp_user;
+revoke alter on hr.employees_copy from temp_user;
+revoke references on hr.employees_copy from temp_user cascade constraints;
+revoke delete, update on hr.employees_copy from temp_user, developer;
+grant select on redo_db to hr with grant option;
+select * from dba_tab_privs where grantee = 'HR';
+revoke select on redo_db from hr;
+revoke developer from temp_user;
+-- system
+
+create table temp
+ (
+   temp_column number,
+   constraint fk_temp foreign key (temp_column) references hr.employees_copy (employee_id)
+  );
+  
+drop table temp;
+-- temp_user
